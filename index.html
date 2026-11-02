@@ -15,17 +15,17 @@
                 <p>Bendahara Pengeluaran Pembantu - Periode November 2026</p>
             </div>
             <div class="action-buttons">
-                <button><img src="https://img.icons8.com/material-outlined/24/000000/print.png"/> Cetak</button>
-                <button><img src="https://img.icons8.com/material-outlined/24/000000/export-excel.png"/> Ekspor Excel</button>
-                <button><img src="https://img.icons8.com/material-outlined/24/000000/settings--v1.png"/> Pengaturan</button>
+                <button id="btnCetak"><img src="https://img.icons8.com/material-outlined/24/000000/print.png"/> Cetak</button>
+                <button id="btnEkspor"><img src="https://img.icons8.com/material-outlined/24/000000/export-excel.png"/> Ekspor Excel</button>
+                <button id="btnPengaturan"><img src="https://img.icons8.com/material-outlined/24/000000/settings--v1.png"/> Pengaturan</button>
             </div>
         </div>
 
         <!-- Info Program Section -->
         <div class="info-program-card">
-            <p><strong>PROGRAM</strong> 1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi</p>
-            <p><strong>KEGIATAN</strong> 1.03.01.1.06 Administrasi Umum Perangkat Daerah</p>
-            <p><strong>SUB KEGIATAN</strong> 1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD</p>
+            <p><strong>PROGRAM</strong> <span id="viewProgram">1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi</span></p>
+            <p><strong>KEGIATAN</strong> <span id="viewKegiatan">1.03.01.1.06 Administrasi Umum Perangkat Daerah</span></p>
+            <p><strong>SUB KEGIATAN</strong> <span id="viewSubKegiatan">1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD</span></p>
         </div>
 
         <!-- Summary Cards -->
@@ -51,7 +51,7 @@
         <!-- Transactions Section -->
         <div class="transactions-section">
             <h3>Daftar Transaksi</h3>
-            <p>1 dari 1 transaksi</p>
+            <p id="infoJumlahTransaksi">1 dari 1 transaksi</p>
             <div class="search-bar">
                 <input type="text" placeholder="Cari uraian, nama, no. dokumen...">
             </div>
@@ -64,31 +64,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th>PENERIMAAN</th>
+                        <th>TANGGAL / PENERIMAAN</th>
                         <th>PENGELUARAN</th>
                         <th>SALDO</th>
+                        <th>AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="summary-row">
-                        <td></td>
-                        <td></td>
-                        <td>600.000.000</td>
-                    </tr>
-                    <tr>
-                        <td>01/10/2021</td>
-                        <td class="expense">400.000</td>
-                        <td>499.600.000</td>
-                        <td class="action-icons">
-                            <img src="https://img.icons8.com/material-outlined/20/737373/edit.png"/>
-                            <img src="https://img.icons8.com/material-outlined/20/737373/trash.png"/>
-                        </td>
-                    </tr>
-                    <tr class="final-row">
-                        <td>0</td>
-                        <td>400.000</td>
-                        <td>499.600.000</td>
-                    </tr>
+                    <!-- Data akan dirender otomatis oleh JavaScript -->
                 </tbody>
             </table>
         </div>
@@ -96,8 +79,8 @@
         <!-- Reconciliation Section -->
         <div class="reconciliation-card">
             <h3>Rekonsiliasi Kas</h3>
-            <p>Sisa kas BKU dibandingkun dengan posisi kas fisik.</p>
-            <p>Sisa Kas BKU <span>Rp 400.000.000</span></p>
+            <p>Sisa kas BKU dibandingkan dengan posisi kas fisik.</p>
+            <p>Sisa Kas BKU <span id="rekonBku">Rp 400.000.000</span></p>
             <div class="details">
                 <p>Kas Tunai <span>Rp 0</span></p>
                 <p>Saldo Bank <span>Rp 0</span></p>
@@ -126,11 +109,43 @@
         <div class="signature-section">
             <p>Mengetahui,</p>
             <p>Kuasa Pengguna Anggaran</p>
-            <p class="name">HARRY KUSWIAN, S.T., M.T.</p>
-            <p>NIP. 198004 201201 1 011</p>
-            <p>Sukabumi,</p>
+            <p class="name" id="viewNamaKPA">HARRY KUSWIAN, S.T., M.T.</p>
+            <p>NIP. <span id="viewNIPKPA">198004 201201 1 011</span></p>
+            <p>Sukabumi, <span id="tanggalCetakFooter">-</span></p>
         </div>
     </div>
+
+    <!-- MODAL PENGATURAN -->
+    <div id="modalPengaturan" class="modal">
+        <div class="modal-content">
+            <h2>Pengaturan Dokumen</h2>
+            <hr style="margin-bottom: 15px; border: 0; border-top: 1px solid #ccc;">
+            
+            <label>Program:</label>
+            <input type="text" id="inputProgram" class="modal-input">
+
+            <label>Kegiatan:</label>
+            <input type="text" id="inputKegiatan" class="modal-input">
+
+            <label>Sub Kegiatan:</label>
+            <input type="text" id="inputSubKegiatan" class="modal-input">
+
+            <label>Saldo Awal (Angka Saja):</label>
+            <input type="number" id="inputSaldoAwal" class="modal-input">
+
+            <label>Nama Kuasa Pengguna Anggaran (Mengetahui):</label>
+            <input type="text" id="inputNamaKPA" class="modal-input">
+
+            <label>NIP:</label>
+            <input type="text" id="inputNIPKPA" class="modal-input">
+
+            <div class="modal-buttons">
+                <button id="btnSimpanPengaturan" class="btn-save">Simpan Perubahan</button>
+                <button id="btnTutupModal" class="btn-close">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
