@@ -1,7 +1,9 @@
 // ==========================================
-// 1. DATA AWAL & STATE APLIKASI
+// 1. DATA AWAL & LOCAL STORAGE
 // ==========================================
-let konfigurasi = {
+
+// Ambil data konfigurasi dari localStorage jika ada, jika tidak gunakan default
+let konfigurasi = JSON.parse(localStorage.getItem('bku_konfigurasi')) || {
     program: "1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi",
     kegiatan: "1.03.01.1.06 Administrasi Umum Perangkat Daerah",
     subKegiatan: "1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD",
@@ -12,15 +14,22 @@ let konfigurasi = {
     saldoBank: 0,
     suratBerharga: 0,
     pajakBelumDisetor: 0,
-    tandaTanganUrl: "" // Menyimpan hasil gambar tanda tangan
+    tandaTanganUrl: ""
 };
 
-let daftarTransaksi = [
+// Ambil data transaksi dari localStorage jika ada, jika tidak gunakan default
+let daftarTransaksi = JSON.parse(localStorage.getItem('bku_transaksi')) || [
     { id: 1, tanggal: "01/10/2021", uraian: "Pengadaan Rapat Koordinasi SKPD", jenis: "pengeluaran", jumlah: 400000 }
 ];
 
 let filterAktif = "Semua";
 let keywordPencarian = "";
+
+// Fungsi untuk menyimpan data secara permanen di browser
+function simpanData() {
+    localStorage.setItem('bku_konfigurasi', JSON.stringify(konfigurasi));
+    localStorage.setItem('bku_transaksi', JSON.stringify(daftarTransaksi));
+}
 
 function getTanggalHariIni() {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -112,7 +121,6 @@ function perbaruiAplikasi() {
     elViewNIPKPA.innerText = konfigurasi.nipKPA;
     elTanggalCetakFooter.innerText = getTanggalHariIni();
 
-    // Render Gambar Tanda Tangan jika ada
     if (konfigurasi.tandaTanganUrl) {
         imgTandaTangan.src = konfigurasi.tandaTanganUrl;
         imgTandaTangan.style.display = 'block';
@@ -153,6 +161,7 @@ function perbaruiAplikasi() {
     });
 
     renderTabel(transaksiTampil, totalPenerimaan, totalPengeluaran, sisaKas);
+    simpanData(); // Simpan setiap kali aplikasi diperbarui
 }
 
 function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
@@ -369,6 +378,7 @@ btnSimpanDrawing.addEventListener('click', function() {
     imgTandaTangan.src = konfigurasi.tandaTanganUrl;
     imgTandaTangan.style.display = 'block';
     modalDrawing.style.display = 'none';
+    perbaruiAplikasi();
 });
 
 // Aksi Edit & Hapus Transaksi
@@ -401,6 +411,7 @@ btnPengaturan.addEventListener('click', function() {
 });
 
 btnTutupModal.addEventListener('click', function() {
+    modalDrawing.style.display = 'none'; // Tambahan pengaman tutup modal
     modalPengaturan.style.display = 'none';
 });
 
