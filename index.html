@@ -1,10 +1,136 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Website Pertamaku di GitHub Pages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Kas Umum</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Halo, Dunia! Website saya sudah aktif di GitHub Pages.</h1>
+    <div class="main-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="title-section">
+                <h1>Buku Kas Umum</h1>
+                <p>Bendahara Pengeluaran Pembantu - Periode November 2026</p>
+            </div>
+            <div class="action-buttons">
+                <button><img src="https://img.icons8.com/material-outlined/24/000000/print.png"/> Cetak</button>
+                <button><img src="https://img.icons8.com/material-outlined/24/000000/export-excel.png"/> Ekspor Excel</button>
+                <button><img src="https://img.icons8.com/material-outlined/24/000000/settings--v1.png"/> Pengaturan</button>
+            </div>
+        </div>
+
+        <!-- Info Program Section -->
+        <div class="info-program-card">
+            <p><strong>PROGRAM</strong> 1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi</p>
+            <p><strong>KEGIATAN</strong> 1.03.01.1.06 Administrasi Umum Perangkat Daerah</p>
+            <p><strong>SUB KEGIATAN</strong> 1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card">
+                <p>Saldo Awal <img src="https://img.icons8.com/material-outlined/16/737373/down-left.png"/></p>
+                <h2>Rp 500.000.000</h2>
+            </div>
+            <div class="card">
+                <p>Total Penerimaan <img src="https://img.icons8.com/material-outlined/16/737373/down-left.png"/></p>
+                <h2>Rp 0</h2>
+            </div>
+            <div class="card">
+                <p>Total Pengeluaran <img src="https://img.icons8.com/material-outlined/16/737373/up-right.png"/></p>
+                <h2 class="expense">Rp 400.000</h2>
+            </div>
+            <div class="card sisa-kas">
+                <p>Sisa Kas <img src="https://img.icons8.com/material-outlined/16/1b5e20/briefcase.png"/></p>
+                <h2>Rp 499.600.000</h2>
+            </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div class="transactions-section">
+            <h3>Daftar Transaksi</h3>
+            <p>1 dari 1 transaksi</p>
+            <div class="search-bar">
+                <input type="text" placeholder="Cari uraian, nama, no. dokumen...">
+            </div>
+            <div class="tabs">
+                <button class="active">Semua</button>
+                <button>Penerimaan</button>
+                <button>Pengeluaran</button>
+            </div>
+            <button class="add-transaction">+ Transaksi</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>PENERIMAAN</th>
+                        <th>PENGELUARAN</th>
+                        <th>SALDO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="summary-row">
+                        <td></td>
+                        <td></td>
+                        <td>600.000.000</td>
+                    </tr>
+                    <tr>
+                        <td>01/10/2021</td>
+                        <td class="expense">400.000</td>
+                        <td>499.600.000</td>
+                        <td class="action-icons">
+                            <img src="https://img.icons8.com/material-outlined/20/737373/edit.png"/>
+                            <img src="https://img.icons8.com/material-outlined/20/737373/trash.png"/>
+                        </td>
+                    </tr>
+                    <tr class="final-row">
+                        <td>0</td>
+                        <td>400.000</td>
+                        <td>499.600.000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Reconciliation Section -->
+        <div class="reconciliation-card">
+            <h3>Rekonsiliasi Kas</h3>
+            <p>Sisa kas BKU dibandingkun dengan posisi kas fisik.</p>
+            <p>Sisa Kas BKU <span>Rp 400.000.000</span></p>
+            <div class="details">
+                <p>Kas Tunai <span>Rp 0</span></p>
+                <p>Saldo Bank <span>Rp 0</span></p>
+                <p>Surat Berharga <span>Rp 0</span></p>
+                <p>Total Kas Fisik <span>Rp 0</span></p>
+            </div>
+            <p>Pajak Belum Disetor <span>Rp 0</span></p>
+            <div class="warning-box">
+                <img src="https://img.icons8.com/material-outlined/24/c62828/error.png"/>
+                Selisih Rp 400.000.000 antara BKU dan kas fisik.
+            </div>
+        </div>
+
+        <!-- Expenditure per Code Section -->
+        <div class="expenditure-card">
+            <h3>Belanja per Kode Rekening</h3>
+            <p>Rekap pengeluaran periode ini.</p>
+            <div class="expenditure-item">
+                <span class="code">5.1.02.1.00000001</span>
+                <span class="amount">Rp 400.000</span>
+            </div>
+            <p>1 transaksi • 100.0%</p>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <p>Mengetahui,</p>
+            <p>Kuasa Pengguna Anggaran</p>
+            <p class="name">HARRY KUSWIAN, S.T., M.T.</p>
+            <p>NIP. 198004 201201 1 011</p>
+            <p>Sukabumi,</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
