@@ -8,7 +8,7 @@ let konfigurasi = {
     saldoAwal: 500000000,
     namaKPA: "HARRY KUSWIAN, S.T., M.T.",
     nipKPA: "198004 201201 1 011",
-    // Data Tambahan Rekonsiliasi
+    // Data Rekonsiliasi Kas
     kasTunai: 0,
     saldoBank: 0,
     suratBerharga: 0,
@@ -16,7 +16,7 @@ let konfigurasi = {
 };
 
 let daftarTransaksi = [
-    { id: 1, tanggal: "01/10/2021", uraian: "Pengadaan Rapat Koordinasi SKPD", jenis: "pengeluaran", jumlah: 400000, kodeRek: "5.1.02.1.00000001" }
+    { id: 1, tanggal: "01/10/2021", uraian: "Pengadaan Rapat Koordinasi SKPD", jenis: "pengeluaran", jumlah: 400000 }
 ];
 
 let filterAktif = "Semua";
@@ -241,7 +241,9 @@ if (tombolTambah) {
     });
 }
 
-// Fitur Tombol Baru: Tambah Kas Tunai, Saldo Bank, dan Pajak
+// ==========================================
+// FUNGSI TOMBOL REKONSIILIASI (Kas, Bank, Pajak)
+// ==========================================
 if (btnTambahKas) {
     btnTambahKas.addEventListener('click', function() {
         let nilaiBaru = prompt("Masukkan jumlah Kas Tunai fisik (Angka saja):", konfigurasi.kasTunai);
