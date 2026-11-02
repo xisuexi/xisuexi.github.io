@@ -151,7 +151,33 @@
             </div>
         </div>
     </div>
-
+<!-- Rekonsiliasi Section -->
+<div class="reconciliation-card">
+    <h3>Rekonsiliasi Kas</h3>
+    <p>Sisa kas BKU dibandingkan dengan posisi kas fisik.</p>
+    <p>Sisa Kas BKU <span id="rekonBku">Rp 400.000.000</span></p>
+    <div class="details">
+        <p>
+            <span>Kas Tunai: <strong id="valKasTunai">Rp 0</strong></span>
+            <button id="btnTambahKas" class="btn-mini">+ Tambah Kas</button>
+        </p>
+        <p>
+            <span>Saldo Bank: <strong id="valSaldoBank">Rp 0</strong></span>
+            <button id="btnSaldoBank" class="btn-mini">+ Saldo Bank</button>
+        </p>
+        <p>Surat Berharga <span>Rp 0</span></p>
+        <p><strong>Total Kas Fisik</strong> <span id="valTotalFisik">Rp 0</span></p>
+    </div>
+    <p>
+        <span>Pajak Belum Disetor: <strong id="valPajak">Rp 0</strong></span>
+        <button id="btnPajak" class="btn-mini">+ Pajak</button>
+    </p>
+    <div class="warning-box">
+        <img src="https://img.icons8.com/material-outlined/24/c62828/error.png"/>
+        <span id="textWarning">Selisih Rp 400.000.000 antara BKU dan kas fisik.</span>
+    </div>
+</div>
+    
     <script src="script.js"></script>
 </body>
 </html>
