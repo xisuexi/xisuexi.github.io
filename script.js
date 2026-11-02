@@ -7,7 +7,12 @@ let konfigurasi = {
     subKegiatan: "1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD",
     saldoAwal: 500000000,
     namaKPA: "HARRY KUSWIAN, S.T., M.T.",
-    nipKPA: "198004 201201 1 011"
+    nipKPA: "198004 201201 1 011",
+    // Data Tambahan Rekonsiliasi
+    kasTunai: 0,
+    saldoBank: 0,
+    suratBerharga: 0,
+    pajakBelumDisetor: 0
 };
 
 let daftarTransaksi = [
@@ -17,7 +22,6 @@ let daftarTransaksi = [
 let filterAktif = "Semua";
 let keywordPencarian = "";
 
-// Format Tanggal Hari Ini (untuk tanda tangan & laporan)
 function getTanggalHariIni() {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date().toLocaleDateString('id-ID', options);
@@ -39,6 +43,11 @@ const elViewNIPKPA = document.getElementById('viewNIPKPA');
 const elTanggalCetakFooter = document.getElementById('tanggalCetakFooter');
 
 const elRekonBku = document.getElementById('rekonBku');
+const elValKasTunai = document.getElementById('valKasTunai');
+const elValSaldoBank = document.getElementById('valSaldoBank');
+const elValTotalFisik = document.getElementById('valTotalFisik');
+const elValPajak = document.getElementById('valPajak');
+const elTextWarning = document.getElementById('textWarning');
 const elWarningBox = document.querySelector('.warning-box');
 
 const inputPencarian = document.querySelector('.search-bar input');
@@ -46,12 +55,15 @@ const tombolTabs = document.querySelectorAll('.tabs button');
 const tombolTambah = document.querySelector('.add-transaction');
 const tabelBody = document.querySelector('table tbody');
 
-// Tombol Fitur Utama
+// Tombol Fitur Utama & Rekonsiliasi
 const btnCetak = document.getElementById('btnCetak');
 const btnEkspor = document.getElementById('btnEkspor');
 const btnPengaturan = document.getElementById('btnPengaturan');
+const btnTambahKas = document.getElementById('btnTambahKas');
+const btnSaldoBank = document.getElementById('btnSaldoBank');
+const btnPajak = document.getElementById('btnPajak');
 
-// Elemen Modal Pengaturan
+// Modal Pengaturan
 const modalPengaturan = document.getElementById('modalPengaturan');
 const btnTutupModal = document.getElementById('btnTutupModal');
 const btnSimpanPengaturan = document.getElementById('btnSimpanPengaturan');
@@ -63,15 +75,12 @@ const inputSaldoAwal = document.getElementById('inputSaldoAwal');
 const inputNamaKPA = document.getElementById('inputNamaKPA');
 const inputNIPKPA = document.getElementById('inputNIPKPA');
 
-// ==========================================
-// 3. FUNGSI UTILITAS FORMAT RUPIAH
-// ==========================================
 function formatRupiah(angka) {
     return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 // ==========================================
-// 4. FUNGSI UTAMA RENDER & KALKULASI
+// 3. FUNGSI UTAMA RENDER & KALKULASI
 // ==========================================
 function perbaruiAplikasi() {
     let totalPenerimaan = 0;
@@ -87,7 +96,7 @@ function perbaruiAplikasi() {
 
     let sisaKas = konfigurasi.saldoAwal + totalPenerimaan - totalPengeluaran;
 
-    // Terapkan teks dari pengaturan ke tampilan HTML
+    // Update Teks Informasi Header & Footer
     elViewProgram.innerText = konfigurasi.program;
     elViewKegiatan.innerText = konfigurasi.kegiatan;
     elViewSubKegiatan.innerText = konfigurasi.subKegiatan;
@@ -95,26 +104,31 @@ function perbaruiAplikasi() {
     elViewNIPKPA.innerText = konfigurasi.nipKPA;
     elTanggalCetakFooter.innerText = getTanggalHariIni();
 
-    // Perbarui Kartu Ringkasan Atas
+    // Kartu Ringkasan Atas
     elSaldoAwal.innerText = formatRupiah(konfigurasi.saldoAwal);
     elTotalPenerimaan.innerText = formatRupiah(totalPenerimaan);
     elTotalPengeluaran.innerText = formatRupiah(totalPengeluaran);
     elSisaKas.innerText = formatRupiah(sisaKas);
     elRekonBku.innerText = formatRupiah(sisaKas);
 
-    // Rekonsiliasi Kas Check
-    const totalKasFisik = 0; 
-    const selisih = sisaKas - totalKasFisik;
+    // Hitung Rekonsiliasi Kas Fisik & Pajak
+    let totalKasFisik = konfigurasi.kasTunai + konfigurasi.saldoBank + konfigurasi.suratBerharga;
+    elValKasTunai.innerText = formatRupiah(konfigurasi.kasTunai);
+    elValSaldoBank.innerText = formatRupiah(konfigurasi.saldoBank);
+    elValTotalFisik.innerText = formatRupiah(totalKasFisik);
+    elValPajak.innerText = formatRupiah(konfigurasi.pajakBelumDisetor);
+
+    let selisih = sisaKas - totalKasFisik;
     if (elWarningBox) {
         if (selisih !== 0) {
             elWarningBox.style.display = 'flex';
-            elWarningBox.innerHTML = `<img src="https://img.icons8.com/material-outlined/24/c62828/error.png"/> Selisih ${formatRupiah(Math.abs(selisih))} antara BKU dan kas fisik.`;
+            elTextWarning.innerText = `Selisih ${formatRupiah(Math.abs(selisih))} antara BKU dan kas fisik.`;
         } else {
             elWarningBox.style.display = 'none';
         }
     }
 
-    // Filter Transaksi
+    // Filter & Render Tabel Transaksi
     let transaksiTampil = daftarTransaksi.filter(trx => {
         let matchTab = true;
         if (filterAktif === 'Penerimaan') matchTab = trx.jenis === 'penerimaan';
@@ -133,23 +147,30 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
 
     let htmlContent = `
         <tr class="summary-row">
-            <td>Saldo Awal</td>
-            <td></td>
+            <td>-</td>
+            <td><strong>Saldo Awal / Saldo Sebelumnya</strong></td>
+            <td>-</td>
+            <td>-</td>
             <td>${konfigurasi.saldoAwal.toLocaleString('id-ID')}</td>
             <td></td>
         </tr>
     `;
 
     if (data.length === 0) {
-        htmlContent += `<tr><td colspan="4" style="text-align: center; color: #888;">Tidak ada transaksi ditemukan</td></tr>`;
+        htmlContent += `<tr><td colspan="6" style="text-align: center; color: #888;">Tidak ada transaksi ditemukan</td></tr>`;
     } else {
         data.forEach(trx => {
-            let kolomPenerimaan = trx.jenis === 'penerimaan' ? trx.jumlah.toLocaleString('id-ID') : '';
-            let kolomPengeluaran = trx.jenis === 'pengeluaran' ? trx.jumlah.toLocaleString('id-ID') : '';
+            let kolomPenerimaan = trx.jenis === 'penerimaan' ? trx.jumlah.toLocaleString('id-ID') : '-';
+            let kolomPengeluaran = trx.jenis === 'pengeluaran' ? trx.jumlah.toLocaleString('id-ID') : '-';
             
             htmlContent += `
                 <tr>
-                    <td>${trx.tanggal} - ${trx.uraian} (${trx.jenis.toUpperCase()})</td>
+                    <td>${trx.tanggal}</td>
+                    <td>
+                        <div class="teks-uraian">${trx.uraian}</div>
+                        <div class="sub-teks-uraian">Jenis: ${trx.jenis.toUpperCase()}</div>
+                    </td>
+                    <td>${kolomPenerimaan}</td>
                     <td class="${trx.jenis === 'pengeluaran' ? 'expense' : ''}">${kolomPengeluaran}</td>
                     <td>${sisaKas.toLocaleString('id-ID')}</td>
                     <td class="action-icons">
@@ -163,9 +184,11 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
 
     htmlContent += `
         <tr class="final-row">
-            <td>TOTAL</td>
-            <td>${totalPengeluaran.toLocaleString('id-ID')}</td>
-            <td>${sisaKas.toLocaleString('id-ID')}</td>
+            <td><strong>TOTAL</strong></td>
+            <td></td>
+            <td><strong>${totalPenerimaan.toLocaleString('id-ID')}</strong></td>
+            <td><strong>${totalPengeluaran.toLocaleString('id-ID')}</strong></td>
+            <td><strong>${sisaKas.toLocaleString('id-ID')}</strong></td>
             <td></td>
         </tr>
     `;
@@ -174,10 +197,9 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
 }
 
 // ==========================================
-// 5. EVENT LISTENERS & INTERAKTIVITAS
+// 4. EVENT LISTENERS & INTERAKTIVITAS
 // ==========================================
 
-// Pencarian
 if (inputPencarian) {
     inputPencarian.addEventListener('input', function(e) {
         keywordPencarian = e.target.value;
@@ -185,7 +207,6 @@ if (inputPencarian) {
     });
 }
 
-// Tab Filter
 tombolTabs.forEach(btn => {
     btn.addEventListener('click', function() {
         tombolTabs.forEach(b => b.classList.remove('active'));
@@ -195,7 +216,6 @@ tombolTabs.forEach(btn => {
     });
 });
 
-// Tambah Transaksi
 if (tombolTambah) {
     tombolTambah.addEventListener('click', function() {
         let tgl = prompt("Masukkan Tanggal (DD/MM/YYYY):", "02/10/2021");
@@ -221,7 +241,37 @@ if (tombolTambah) {
     });
 }
 
-// Hapus & Edit Transaksi
+// Fitur Tombol Baru: Tambah Kas Tunai, Saldo Bank, dan Pajak
+if (btnTambahKas) {
+    btnTambahKas.addEventListener('click', function() {
+        let nilaiBaru = prompt("Masukkan jumlah Kas Tunai fisik (Angka saja):", konfigurasi.kasTunai);
+        if (nilaiBaru !== null && !isNaN(nilaiBaru)) {
+            konfigurasi.kasTunai = parseInt(nilaiBaru);
+            perbaruiAplikasi();
+        }
+    });
+}
+
+if (btnSaldoBank) {
+    btnSaldoBank.addEventListener('click', function() {
+        let nilaiBaru = prompt("Masukkan jumlah Saldo Bank (Angka saja):", konfigurasi.saldoBank);
+        if (nilaiBaru !== null && !isNaN(nilaiBaru)) {
+            konfigurasi.saldoBank = parseInt(nilaiBaru);
+            perbaruiAplikasi();
+        }
+    });
+}
+
+if (btnPajak) {
+    btnPajak.addEventListener('click', function() {
+        let nilaiBaru = prompt("Masukkan jumlah Pajak Belum Disetor (Angka saja):", konfigurasi.pajakBelumDisetor);
+        if (nilaiBaru !== null && !isNaN(nilaiBaru)) {
+            konfigurasi.pajakBelumDisetor = parseInt(nilaiBaru);
+            perbaruiAplikasi();
+        }
+    });
+}
+
 window.hapusTransaksi = function(id) {
     if (confirm("Yakin ingin menghapus transaksi ini?")) {
         daftarTransaksi = daftarTransaksi.filter(trx => trx.id !== id);
@@ -239,11 +289,7 @@ window.editTransaksi = function(id) {
     }
 };
 
-// ==========================================
-// 6. FITUR: PENGATURAN, CETAK, & EKSPOR EXCEL
-// ==========================================
-
-// Buka Modal Pengaturan
+// Pengaturan Modal
 btnPengaturan.addEventListener('click', function() {
     inputProgram.value = konfigurasi.program;
     inputKegiatan.value = konfigurasi.kegiatan;
@@ -251,16 +297,13 @@ btnPengaturan.addEventListener('click', function() {
     inputSaldoAwal.value = konfigurasi.saldoAwal;
     inputNamaKPA.value = konfigurasi.namaKPA;
     inputNIPKPA.value = konfigurasi.nipKPA;
-    
     modalPengaturan.style.display = 'block';
 });
 
-// Tutup Modal Pengaturan
 btnTutupModal.addEventListener('click', function() {
     modalPengaturan.style.display = 'none';
 });
 
-// Simpan Pengaturan
 btnSimpanPengaturan.addEventListener('click', function() {
     konfigurasi.program = inputProgram.value;
     konfigurasi.kegiatan = inputKegiatan.value;
@@ -274,12 +317,10 @@ btnSimpanPengaturan.addEventListener('click', function() {
     alert("Pengaturan berhasil disimpan!");
 });
 
-// Tombol Cetak (Print dengan Tanggal Cetak Otomatis)
 btnCetak.addEventListener('click', function() {
     window.print();
 });
 
-// Tombol Ekspor Excel (Mendownload file .xls lengkap dengan tanggal ekspor)
 btnEkspor.addEventListener('click', function() {
     let htmlContent = `
         <html>
@@ -314,7 +355,6 @@ btnEkspor.addEventListener('click', function() {
     document.body.removeChild(a);
 });
 
-// Inisialisasi saat pertama kali dimuat
 document.addEventListener("DOMContentLoaded", function() {
     perbaruiAplikasi();
 });
