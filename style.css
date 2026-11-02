@@ -543,7 +543,28 @@ table td:nth-child(2) {
     margin-top: 2px;
 }
 
+/* Tombol Mini Rekonsiliasi */
+.btn-mini {
+    background-color: #00796b;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
 
+.btn-mini:hover {
+    background-color: #004d40;
+}
+
+.reconciliation-card .details p, 
+.reconciliation-card > p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 /* Sembunyikan tombol aksi saat dicetak */
 @media print {
     .action-buttons, .search-bar, .tabs, .add-transaction, .action-icons {
