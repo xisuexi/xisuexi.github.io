@@ -8,11 +8,11 @@ let konfigurasi = {
     saldoAwal: 500000000,
     namaKPA: "HARRY KUSWIAN, S.T., M.T.",
     nipKPA: "198004 201201 1 011",
-    // Data Rekonsiliasi Kas
     kasTunai: 0,
     saldoBank: 0,
     suratBerharga: 0,
-    pajakBelumDisetor: 0
+    pajakBelumDisetor: 0,
+    tandaTanganUrl: "" // Menyimpan hasil gambar tanda tangan
 };
 
 let daftarTransaksi = [
@@ -41,6 +41,7 @@ const elViewSubKegiatan = document.getElementById('viewSubKegiatan');
 const elViewNamaKPA = document.getElementById('viewNamaKPA');
 const elViewNIPKPA = document.getElementById('viewNIPKPA');
 const elTanggalCetakFooter = document.getElementById('tanggalCetakFooter');
+const imgTandaTangan = document.getElementById('imgTandaTangan');
 
 const elRekonBku = document.getElementById('rekonBku');
 const elValKasTunai = document.getElementById('valKasTunai');
@@ -55,18 +56,26 @@ const tombolTabs = document.querySelectorAll('.tabs button');
 const tombolTambah = document.querySelector('.add-transaction');
 const tabelBody = document.querySelector('table tbody');
 
-// Tombol Fitur Utama & Rekonsiliasi
+// Tombol Aksi
 const btnCetak = document.getElementById('btnCetak');
 const btnEkspor = document.getElementById('btnEkspor');
 const btnPengaturan = document.getElementById('btnPengaturan');
 const btnTambahKas = document.getElementById('btnTambahKas');
 const btnSaldoBank = document.getElementById('btnSaldoBank');
 const btnPajak = document.getElementById('btnPajak');
+const btnBukaDrawing = document.getElementById('btnBukaDrawing');
 
-// Modal Pengaturan
+// Modal Pengaturan & Drawing
 const modalPengaturan = document.getElementById('modalPengaturan');
 const btnTutupModal = document.getElementById('btnTutupModal');
 const btnSimpanPengaturan = document.getElementById('btnSimpanPengaturan');
+
+const modalDrawing = document.getElementById('modalDrawing');
+const btnTutupDrawing = document.getElementById('btnTutupDrawing');
+const btnSimpanDrawing = document.getElementById('btnSimpanDrawing');
+const btnClearCanvas = document.getElementById('btnClearCanvas');
+const canvas = document.getElementById('canvasTandaTangan');
+const ctx = canvas.getContext('2d');
 
 const inputProgram = document.getElementById('inputProgram');
 const inputKegiatan = document.getElementById('inputKegiatan');
@@ -96,7 +105,6 @@ function perbaruiAplikasi() {
 
     let sisaKas = konfigurasi.saldoAwal + totalPenerimaan - totalPengeluaran;
 
-    // Update Teks Informasi Header & Footer
     elViewProgram.innerText = konfigurasi.program;
     elViewKegiatan.innerText = konfigurasi.kegiatan;
     elViewSubKegiatan.innerText = konfigurasi.subKegiatan;
@@ -104,14 +112,20 @@ function perbaruiAplikasi() {
     elViewNIPKPA.innerText = konfigurasi.nipKPA;
     elTanggalCetakFooter.innerText = getTanggalHariIni();
 
-    // Kartu Ringkasan Atas
+    // Render Gambar Tanda Tangan jika ada
+    if (konfigurasi.tandaTanganUrl) {
+        imgTandaTangan.src = konfigurasi.tandaTanganUrl;
+        imgTandaTangan.style.display = 'block';
+    } else {
+        imgTandaTangan.style.display = 'none';
+    }
+
     elSaldoAwal.innerText = formatRupiah(konfigurasi.saldoAwal);
     elTotalPenerimaan.innerText = formatRupiah(totalPenerimaan);
     elTotalPengeluaran.innerText = formatRupiah(totalPengeluaran);
     elSisaKas.innerText = formatRupiah(sisaKas);
     elRekonBku.innerText = formatRupiah(sisaKas);
 
-    // Hitung Rekonsiliasi Kas Fisik & Pajak
     let totalKasFisik = konfigurasi.kasTunai + konfigurasi.saldoBank + konfigurasi.suratBerharga;
     elValKasTunai.innerText = formatRupiah(konfigurasi.kasTunai);
     elValSaldoBank.innerText = formatRupiah(konfigurasi.saldoBank);
@@ -128,7 +142,6 @@ function perbaruiAplikasi() {
         }
     }
 
-    // Filter & Render Tabel Transaksi
     let transaksiTampil = daftarTransaksi.filter(trx => {
         let matchTab = true;
         if (filterAktif === 'Penerimaan') matchTab = trx.jenis === 'penerimaan';
@@ -197,7 +210,7 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
 }
 
 // ==========================================
-// 4. EVENT LISTENERS & INTERAKTIVITAS
+// 4. EVENT LISTENERS & LOGIKA DRAWING CANVAS
 // ==========================================
 
 if (inputPencarian) {
@@ -241,9 +254,7 @@ if (tombolTambah) {
     });
 }
 
-// ==========================================
-// FUNGSI TOMBOL REKONSIILIASI (Kas, Bank, Pajak)
-// ==========================================
+// Rekonsiliasi Tombol Cepat
 if (btnTambahKas) {
     btnTambahKas.addEventListener('click', function() {
         let nilaiBaru = prompt("Masukkan jumlah Kas Tunai fisik (Angka saja):", konfigurasi.kasTunai);
@@ -274,6 +285,93 @@ if (btnPajak) {
     });
 }
 
+// Logika Canvas Drawing Tanda Tangan
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+
+btnBukaDrawing.addEventListener('click', function() {
+    modalDrawing.style.display = 'block';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+});
+
+btnTutupDrawing.addEventListener('click', function() {
+    modalDrawing.style.display = 'none';
+});
+
+btnClearCanvas.addEventListener('click', function() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
+
+function getTouchPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
+
+canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    const pos = getMousePos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (!isDrawing) return;
+    const pos = getMousePos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+});
+
+window.addEventListener('mouseup', () => { isDrawing = false; });
+
+canvas.addEventListener('touchstart', (e) => {
+    isDrawing = true;
+    const pos = getTouchPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+    e.preventDefault();
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!isDrawing) return;
+    const pos = getTouchPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+    e.preventDefault();
+});
+
+window.addEventListener('touchend', () => { isDrawing = false; });
+
+btnSimpanDrawing.addEventListener('click', function() {
+    konfigurasi.tandaTanganUrl = canvas.toDataURL('image/png');
+    imgTandaTangan.src = konfigurasi.tandaTanganUrl;
+    imgTandaTangan.style.display = 'block';
+    modalDrawing.style.display = 'none';
+});
+
+// Aksi Edit & Hapus Transaksi
 window.hapusTransaksi = function(id) {
     if (confirm("Yakin ingin menghapus transaksi ini?")) {
         daftarTransaksi = daftarTransaksi.filter(trx => trx.id !== id);
@@ -291,7 +389,7 @@ window.editTransaksi = function(id) {
     }
 };
 
-// Pengaturan Modal
+// Pengaturan Modal Dokumen
 btnPengaturan.addEventListener('click', function() {
     inputProgram.value = konfigurasi.program;
     inputKegiatan.value = konfigurasi.kegiatan;
@@ -319,11 +417,14 @@ btnSimpanPengaturan.addEventListener('click', function() {
     alert("Pengaturan berhasil disimpan!");
 });
 
+// Cetak & Ekspor File
 btnCetak.addEventListener('click', function() {
     window.print();
 });
 
 btnEkspor.addEventListener('click', function() {
+    let ttdHtml = konfigurasi.tandaTanganUrl ? `<img src="${konfigurasi.tandaTanganUrl}" height="60"/>` : `<br/><br/>`;
+    
     let htmlContent = `
         <html>
         <head><meta charset="utf-8"></head>
@@ -340,7 +441,7 @@ btnEkspor.addEventListener('click', function() {
             <br/><br/>
             <p>Mengetahui,</p>
             <p>Kuasa Pengguna Anggaran</p>
-            <br/><br/>
+            <div>${ttdHtml}</div>
             <p><b>${konfigurasi.namaKPA}</b></p>
             <p>NIP. ${konfigurasi.nipKPA}</p>
         </body>
