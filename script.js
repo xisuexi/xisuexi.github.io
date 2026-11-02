@@ -1,12 +1,27 @@
 // ==========================================
 // 1. DATA AWAL & STATE APLIKASI
 // ==========================================
-let saldoAwal = 500000000; // Rp 500.000.000
+let konfigurasi = {
+    program: "1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi",
+    kegiatan: "1.03.01.1.06 Administrasi Umum Perangkat Daerah",
+    subKegiatan: "1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD",
+    saldoAwal: 500000000,
+    namaKPA: "HARRY KUSWIAN, S.T., M.T.",
+    nipKPA: "198004 201201 1 011"
+};
+
 let daftarTransaksi = [
     { id: 1, tanggal: "01/10/2021", uraian: "Pengadaan Rapat Koordinasi SKPD", jenis: "pengeluaran", jumlah: 400000, kodeRek: "5.1.02.1.00000001" }
 ];
+
 let filterAktif = "Semua";
 let keywordPencarian = "";
+
+// Format Tanggal Hari Ini (untuk tanda tangan & laporan)
+function getTanggalHariIni() {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date().toLocaleDateString('id-ID', options);
+}
 
 // ==========================================
 // 2. SELEKTOR ELEMEN DOM
@@ -16,13 +31,37 @@ const elTotalPenerimaan = document.querySelectorAll('.summary-cards .card')[1].q
 const elTotalPengeluaran = document.querySelectorAll('.summary-cards .card')[2].querySelector('h2');
 const elSisaKas = document.querySelectorAll('.summary-cards .card')[3].querySelector('h2');
 
-const elSisaKasBkuRekon = document.querySelector('.reconciliation-card .details').previousElementSibling.querySelector('span') || document.querySelector('.reconciliation-card p:nth-of-type(3) span');
+const elViewProgram = document.getElementById('viewProgram');
+const elViewKegiatan = document.getElementById('viewKegiatan');
+const elViewSubKegiatan = document.getElementById('viewSubKegiatan');
+const elViewNamaKPA = document.getElementById('viewNamaKPA');
+const elViewNIPKPA = document.getElementById('viewNIPKPA');
+const elTanggalCetakFooter = document.getElementById('tanggalCetakFooter');
+
+const elRekonBku = document.getElementById('rekonBku');
 const elWarningBox = document.querySelector('.warning-box');
 
 const inputPencarian = document.querySelector('.search-bar input');
 const tombolTabs = document.querySelectorAll('.tabs button');
 const tombolTambah = document.querySelector('.add-transaction');
 const tabelBody = document.querySelector('table tbody');
+
+// Tombol Fitur Utama
+const btnCetak = document.getElementById('btnCetak');
+const btnEkspor = document.getElementById('btnEkspor');
+const btnPengaturan = document.getElementById('btnPengaturan');
+
+// Elemen Modal Pengaturan
+const modalPengaturan = document.getElementById('modalPengaturan');
+const btnTutupModal = document.getElementById('btnTutupModal');
+const btnSimpanPengaturan = document.getElementById('btnSimpanPengaturan');
+
+const inputProgram = document.getElementById('inputProgram');
+const inputKegiatan = document.getElementById('inputKegiatan');
+const inputSubKegiatan = document.getElementById('inputSubKegiatan');
+const inputSaldoAwal = document.getElementById('inputSaldoAwal');
+const inputNamaKPA = document.getElementById('inputNamaKPA');
+const inputNIPKPA = document.getElementById('inputNIPKPA');
 
 // ==========================================
 // 3. FUNGSI UTILITAS FORMAT RUPIAH
@@ -38,7 +77,6 @@ function perbaruiAplikasi() {
     let totalPenerimaan = 0;
     let totalPengeluaran = 0;
 
-    // Hitung total penerimaan dan pengeluaran dari data
     daftarTransaksi.forEach(trx => {
         if (trx.jenis === 'penerimaan') {
             totalPenerimaan += trx.jumlah;
@@ -47,18 +85,26 @@ function perbaruiAplikasi() {
         }
     });
 
-    let sisaKas = saldoAwal + totalPenerimaan - totalPengeluaran;
+    let sisaKas = konfigurasi.saldoAwal + totalPenerimaan - totalPengeluaran;
+
+    // Terapkan teks dari pengaturan ke tampilan HTML
+    elViewProgram.innerText = konfigurasi.program;
+    elViewKegiatan.innerText = konfigurasi.kegiatan;
+    elViewSubKegiatan.innerText = konfigurasi.subKegiatan;
+    elViewNamaKPA.innerText = konfigurasi.namaKPA;
+    elViewNIPKPA.innerText = konfigurasi.nipKPA;
+    elTanggalCetakFooter.innerText = getTanggalHariIni();
 
     // Perbarui Kartu Ringkasan Atas
-    elSaldoAwal.innerText = formatRupiah(saldoAwal);
+    elSaldoAwal.innerText = formatRupiah(konfigurasi.saldoAwal);
     elTotalPenerimaan.innerText = formatRupiah(totalPenerimaan);
     elTotalPengeluaran.innerText = formatRupiah(totalPengeluaran);
     elSisaKas.innerText = formatRupiah(sisaKas);
+    elRekonBku.innerText = formatRupiah(sisaKas);
 
-    // Perbarui Bagian Rekonsiliasi Kas
-    const totalKasFisik = 0; // Ubah jika ada input kas fisik dinamis
+    // Rekonsiliasi Kas Check
+    const totalKasFisik = 0; 
     const selisih = sisaKas - totalKasFisik;
-    
     if (elWarningBox) {
         if (selisih !== 0) {
             elWarningBox.style.display = 'flex';
@@ -68,7 +114,7 @@ function perbaruiAplikasi() {
         }
     }
 
-    // Filter Transaksi Berdasarkan Tab dan Pencarian
+    // Filter Transaksi
     let transaksiTampil = daftarTransaksi.filter(trx => {
         let matchTab = true;
         if (filterAktif === 'Penerimaan') matchTab = trx.jenis === 'penerimaan';
@@ -79,24 +125,21 @@ function perbaruiAplikasi() {
         return matchTab && matchSearch;
     });
 
-    // Render Tabel Transaksi
     renderTabel(transaksiTampil, totalPenerimaan, totalPengeluaran, sisaKas);
 }
 
 function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
-    // Kosongkan isi tabel
     tabelBody.innerHTML = '';
 
-    // Baris Saldo Awal / Posisi Awal di Tabel
     let htmlContent = `
         <tr class="summary-row">
+            <td>Saldo Awal</td>
             <td></td>
+            <td>${konfigurasi.saldoAwal.toLocaleString('id-ID')}</td>
             <td></td>
-            <td>${saldoAwal.toLocaleString('id-ID')}</td>
         </tr>
     `;
 
-    // Baris Data Transaksi
     if (data.length === 0) {
         htmlContent += `<tr><td colspan="4" style="text-align: center; color: #888;">Tidak ada transaksi ditemukan</td></tr>`;
     } else {
@@ -106,7 +149,7 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
             
             htmlContent += `
                 <tr>
-                    <td>${trx.tanggal}</td>
+                    <td>${trx.tanggal} - ${trx.uraian} (${trx.jenis.toUpperCase()})</td>
                     <td class="${trx.jenis === 'pengeluaran' ? 'expense' : ''}">${kolomPengeluaran}</td>
                     <td>${sisaKas.toLocaleString('id-ID')}</td>
                     <td class="action-icons">
@@ -118,12 +161,12 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
         });
     }
 
-    // Baris Total Bawah Tabel
     htmlContent += `
         <tr class="final-row">
-            <td>${totalPenerimaan.toLocaleString('id-ID')}</td>
+            <td>TOTAL</td>
             <td>${totalPengeluaran.toLocaleString('id-ID')}</td>
             <td>${sisaKas.toLocaleString('id-ID')}</td>
+            <td></td>
         </tr>
     `;
 
@@ -131,10 +174,10 @@ function renderTabel(data, totalPenerimaan, totalPengeluaran, sisaKas) {
 }
 
 // ==========================================
-// 5. EVENT LISTENERS & INTERaktivitas
+// 5. EVENT LISTENERS & INTERAKTIVITAS
 // ==========================================
 
-// Fitur Pencarian Real-time
+// Pencarian
 if (inputPencarian) {
     inputPencarian.addEventListener('input', function(e) {
         keywordPencarian = e.target.value;
@@ -142,7 +185,7 @@ if (inputPencarian) {
     });
 }
 
-// Fitur Filter Tab (Semua, Penerimaan, Pengeluaran)
+// Tab Filter
 tombolTabs.forEach(btn => {
     btn.addEventListener('click', function() {
         tombolTabs.forEach(b => b.classList.remove('active'));
@@ -152,7 +195,7 @@ tombolTabs.forEach(btn => {
     });
 });
 
-// Fitur Tambah Transaksi Interaktif (Prompt Sederhana)
+// Tambah Transaksi
 if (tombolTambah) {
     tombolTambah.addEventListener('click', function() {
         let tgl = prompt("Masukkan Tanggal (DD/MM/YYYY):", "02/10/2021");
@@ -167,44 +210,111 @@ if (tombolTambah) {
             return;
         }
 
-        // Tambah ke array data
-        const transaksiBaru = {
+        daftarTransaksi.push({
             id: Date.now(),
             tanggal: tgl,
             uraian: uraian,
             jenis: jenis,
-            jumlah: jumlah,
-            kodeRek: "5.1.02.1.00000001"
-        };
-
-        daftarTransaksi.push(transaksiBaru);
+            jumlah: jumlah
+        });
         perbaruiAplikasi();
-        alert("Transaksi berhasil ditambahkan!");
     });
 }
 
-// Fungsi Hapus Transaksi
+// Hapus & Edit Transaksi
 window.hapusTransaksi = function(id) {
-    if (confirm("Apakah Anda yakin ingin menghapus transaksi ini?")) {
+    if (confirm("Yakin ingin menghapus transaksi ini?")) {
         daftarTransaksi = daftarTransaksi.filter(trx => trx.id !== id);
         perbaruiAplikasi();
     }
 };
 
-// Fungsi Edit Transaksi (Contoh Sederhana)
 window.editTransaksi = function(id) {
     let trx = daftarTransaksi.find(t => t.id === id);
     if (!trx) return;
-
-    let nominalBaru = prompt("Ubah nominal pengeluaran/penerimaan:", trx.jumlah);
+    let nominalBaru = prompt("Ubah nominal transaksi:", trx.jumlah);
     if (nominalBaru !== null && !isNaN(nominalBaru)) {
         trx.jumlah = parseInt(nominalBaru);
         perbaruiAplikasi();
-        alert("Transaksi berhasil diperbarui!");
     }
 };
 
-// Jalankan saat halaman pertama kali dimuat
+// ==========================================
+// 6. FITUR: PENGATURAN, CETAK, & EKSPOR EXCEL
+// ==========================================
+
+// Buka Modal Pengaturan
+btnPengaturan.addEventListener('click', function() {
+    inputProgram.value = konfigurasi.program;
+    inputKegiatan.value = konfigurasi.kegiatan;
+    inputSubKegiatan.value = konfigurasi.subKegiatan;
+    inputSaldoAwal.value = konfigurasi.saldoAwal;
+    inputNamaKPA.value = konfigurasi.namaKPA;
+    inputNIPKPA.value = konfigurasi.nipKPA;
+    
+    modalPengaturan.style.display = 'block';
+});
+
+// Tutup Modal Pengaturan
+btnTutupModal.addEventListener('click', function() {
+    modalPengaturan.style.display = 'none';
+});
+
+// Simpan Pengaturan
+btnSimpanPengaturan.addEventListener('click', function() {
+    konfigurasi.program = inputProgram.value;
+    konfigurasi.kegiatan = inputKegiatan.value;
+    konfigurasi.subKegiatan = inputSubKegiatan.value;
+    konfigurasi.saldoAwal = parseInt(inputSaldoAwal.value) || 0;
+    konfigurasi.namaKPA = inputNamaKPA.value;
+    konfigurasi.nipKPA = inputNIPKPA.value;
+
+    modalPengaturan.style.display = 'none';
+    perbaruiAplikasi();
+    alert("Pengaturan berhasil disimpan!");
+});
+
+// Tombol Cetak (Print dengan Tanggal Cetak Otomatis)
+btnCetak.addEventListener('click', function() {
+    window.print();
+});
+
+// Tombol Ekspor Excel (Mendownload file .xls lengkap dengan tanggal ekspor)
+btnEkspor.addEventListener('click', function() {
+    let htmlContent = `
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body>
+            <h3>Buku Kas Umum</h3>
+            <p><strong>Tanggal Ekspor:</strong> ${getTanggalHariIni()}</p>
+            <p><strong>Program:</strong> ${konfigurasi.program}</p>
+            <p><strong>Kegiatan:</strong> ${konfigurasi.kegiatan}</p>
+            <p><strong>Sub Kegiatan:</strong> ${konfigurasi.subKegiatan}</p>
+            <br/>
+            <table border="1">
+                ${document.querySelector('table').innerHTML}
+            </table>
+            <br/><br/>
+            <p>Mengetahui,</p>
+            <p>Kuasa Pengguna Anggaran</p>
+            <br/><br/>
+            <p><b>${konfigurasi.namaKPA}</b></p>
+            <p>NIP. ${konfigurasi.nipKPA}</p>
+        </body>
+        </html>
+    `;
+
+    let blob = new Blob(['\ufeff' + htmlContent], { type: 'application/vnd.ms-excel' });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = `Buku_Kas_Umum_${new Date().toISOString().slice(0,10)}.xls`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
+
+// Inisialisasi saat pertama kali dimuat
 document.addEventListener("DOMContentLoaded", function() {
     perbaruiAplikasi();
 });
