@@ -523,6 +523,26 @@ td {
     border-radius: 4px;
     cursor: pointer;
 }
+/* Atur perataan teks pada kolom tabel */
+table th:nth-child(2), 
+table td:nth-child(2) {
+    text-align: left;
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+/* Mempercantik tampilan teks uraian */
+.teks-uraian {
+    font-weight: 500;
+    color: #333;
+}
+
+.sub-teks-uraian {
+    font-size: 12px;
+    color: #777;
+    margin-top: 2px;
+}
+
 
 /* Sembunyikan tombol aksi saat dicetak */
 @media print {
