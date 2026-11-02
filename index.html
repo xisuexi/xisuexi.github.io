@@ -104,16 +104,23 @@
                 <span id="textWarning">Selisih Rp 400.000.000 antara BKU dan kas fisik.</span>
             </div>
         </div>
-
-        <!-- Signature Section -->
-        <div class="signature-section">
-            <p>Mengetahui,</p>
-            <p>Kuasa Pengguna Anggaran</p>
-            <p class="name" id="viewNamaKPA">HARRY KUSWIAN, S.T., M.T.</p>
-            <p>NIP. <span id="viewNIPKPA">198004 201201 1 011</span></p>
-            <p>Sukabumi, <span id="tanggalCetakFooter">-</span></p>
-        </div>
+<!-- Signature Section -->
+<div class="signature-section">
+    <p>Mengetahui,</p>
+    <p>Kuasa Pengguna Anggaran</p>
+    
+    <!-- Area Preview Tanda Tangan Drawing -->
+    <div style="height: 70px; display: flex; align-items: center; justify-content: center; margin: 5px 0;">
+        <img id="imgTandaTangan" src="" alt="Tanda Tangan" style="max-height: 60px; display: none;">
     </div>
+
+    <p class="name" id="viewNamaKPA">HARRY KUSWIAN, S.T., M.T.</p>
+    <p>NIP. <span id="viewNIPKPA">198004 201201 1 011</span></p>
+    <p>Sukabumi, <span id="tanggalCetakFooter">-</span></p>
+    
+    <!-- Tombol untuk membuka layar drawing -->
+    <button id="btnBukaDrawing" class="btn-mini" style="margin-top: 10px;">✍️ Gunakan Layar Drawing</button>
+</div>
 
     <!-- MODAL PENGATURAN -->
     <div id="modalPengaturan" class="modal">
@@ -145,6 +152,24 @@
             </div>
         </div>
     </div>
+        <!-- MODAL DRAWING TANDA TANGAN -->
+<div id="modalDrawing" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <h2>Layar Drawing Tanda Tangan</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Silakan buat tanda tangan di kotak bawah:</p>
+        
+        <canvas id="canvasTandaTangan" width="400" height="200" style="border: 1px solid #ccc; background-color: #fff; cursor: crosshair; touch-action: none; width: 100%; max-width: 400px; border-radius: 4px;"></canvas>
+        
+        <div style="margin-top: 10px;">
+            <button id="btnClearCanvas" class="btn-close" style="background-color: #c62828; color: white; padding: 6px 12px; font-size: 12px;">Hapus / Ulangi</button>
+        </div>
+
+        <div class="modal-buttons" style="margin-top: 20px;">
+            <button id="btnSimpanDrawing" class="btn-save">Gunakan Tanda Tangan</button>
+            <button id="btnTutupDrawing" class="btn-close">Batal</button>
+        </div>
+    </div>
+</div>
 
     <script src="script.js"></script>
 </body>
