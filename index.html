@@ -128,11 +128,11 @@
                         <form id="form-transaksi">
                             <div class="form-group">
                                 <label>No. Bukti / Nomor</label>
-                                <input type="text" required class="form-control" placeholder="BKT-001">
+                                <input type="text" id="tx-nomor" required class="form-control" placeholder="BKT-001">
                             </div>
                             <div class="form-group">
                                 <label>Tanggal Transaksi</label>
-                                <input type="date" required class="form-control">
+                                <input type="date" id="tx-tanggal" required class="form-control">
                             </div>
                             <div class="form-group">
                                 <label>Jenis Transaksi</label>
@@ -145,15 +145,15 @@
                             </div>
                             <div class="form-group">
                                 <label>Uraian / Keterangan</label>
-                                <input type="text" required class="form-control" placeholder="Masukkan detail deskripsi...">
+                                <input type="text" id="tx-uraian" required class="form-control" placeholder="Masukkan detail deskripsi...">
                             </div>
                             <div class="form-group">
                                 <label>Nominal (Rp)</label>
-                                <input type="number" required class="form-control" placeholder="0">
+                                <input type="number" id="tx-nominal" required class="form-control" placeholder="0">
                             </div>
                             <div class="form-group">
                                 <label>Data Pendukung <span class="text-muted">(Maks 2MB)</span></label>
-                                <input type="file" class="form-control file-input">
+                                <input type="file" id="tx-file" class="form-control file-input">
                             </div>
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary w-100">Simpan Transaksi</button>
@@ -161,6 +161,5 @@
                         </form>
                     </section>
                 </div>
-
                 <!-- Rekonsiliasi & Dokumen Meta -->
                 <div class="grid-2-col row-bottom">
