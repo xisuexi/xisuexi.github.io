@@ -3,281 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Kas Umum - Dashboard Resmi</title>
+    <title>Buku Kas Umum</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Pustaka QR Code -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-    <div class="app-layout">
-        <!-- SIDEBAR NAVIGASI -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <h2>BKU <span>Online</span></h2>
-                <p>Sistem Keuangan Daerah</p>
-            </div>
-            <nav class="sidebar-menu">
-                <a href="#" class="menu-item active">📊 Dashboard Utama</a>
-                <a href="#" class="menu-item" id="menuPengaturanSidebar">⚙️ Pengaturan Dokumen</a>
-                <a href="#" class="menu-item" id="menuCetakSidebar">🖨️ Cetak / Ekspor PDF</a>
-            </nav>
-            <div class="sidebar-footer">
-                <p>© 2026 UPTD II - DBMPR Jabar</p>
-            </div>
-        </aside>
-
-        <!-- KONTEN UTAMA (LAYOUT FULL WIDTH) -->
-        <main class="main-content">
-            <!-- HEADER ATAS -->
-            <header class="top-header">
-                <div class="header-title">
-                    <h1>Buku Kas Umum (BKU)</h1>
-                    <p>Pengelolaan Administrasi Keuangan & Transaksi Harian</p>
-                </div>
-                <div class="header-actions">
-                    <button id="btnCetak" class="btn-action">🖨️ Cetak</button>
-                    <button id="btnEkspor" class="btn-action">📥 Ekspor Excel</button>
-                    <button id="btnPengaturan" class="btn-action btn-primary">⚙️ Pengaturan</button>
-                </div>
-            </header>
-
-            <!-- INFO PROGRAM & KEGIATAN -->
-            <section class="info-card">
-                <p><strong>PROGRAM:</strong> <span id="viewProgram">-</span></p>
-                <p><strong>KEGIATAN:</strong> <span id="viewKegiatan">-</span></p>
-                <p><strong>SUB KEGIATAN:</strong> <span id="viewSubKegiatan">-</span></p>
-            </section>
-
-            <!-- ASISTEN AI & FILTER PERIODE -->
-            <div class="dashboard-grid-top">
-                <!-- AI CARD -->
-                <div class="card-box ai-box">
-                    <h3>🤖 Asisten AI Pintar</h3>
-                    <p>Ketik kalimat transaksi (cth: <em>"Beli roko 25rb tgl 02 november 2026"</em>):</p>
-                    <div class="ai-input-group">
-                        <input type="text" id="inputAiPrompt" placeholder="Ketik perintah transaksi...">
-                        <button id="btnKirimAi">Proses AI</button>
-                    </div>
-                    <p id="aiResponse" class="ai-feedback"></p>
-                </div>
-
-                <!-- FILTER PERIODE BULAN & TAHUN -->
-                <div class="card-box filter-box">
-                    <h3>📅 Filter Periode Laporan</h3>
-                    <div class="filter-controls">
-                        <div class="filter-group">
-                            <label>Bulan:</label>
-                            <select id="filterBulan" class="form-control">
-                                <option value="01">Januari</option>
-                                <option value="02">Februari</option>
-                                <option value="03">Maret</option>
-                                <option value="04">April</option>
-                                <option value="05">Mei</option>
-                                <option value="06">Juni</option>
-                                <option value="07">Juli</option>
-                                <option value="08">Agustus</option>
-                                <option value="09">September</option>
-                                <option value="10">Oktober</option>
-                                <option value="11" selected>November</option>
-                                <option value="12">Desember</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Tahun:</label>
-                            <select id="filterTahun" class="form-control">
-                                <option value="2024">2024</option>
-                                <option value="2025">2025</option>
-                                <option value="2026" selected>2026</option>
-                                <option value="2027">2027</option>
-                            </select>
-                        </div>
-                    </div>
+    <div class="main-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="title-section">
+                <h1>Buku Kas Umum</h1>
+                <!-- Filter Bulan & Tahun Terpisah -->
+                <div class="filter-periode" style="margin-top: 5px; display: flex; gap: 10px; align-items: center;">
+                    <span style="font-size: 14px; color: #666;">Periode:</span>
+                    <select id="filterBulan" class="select-periode">
+                        <option value="01">Januari</option>
+                        <option value="02">Februari</option>
+                        <option value="03">Maret</option>
+                        <option value="04">April</option>
+                        <option value="05">Mei</option>
+                        <option value="06">Juni</option>
+                        <option value="07">Juli</option>
+                        <option value="08">Agustus</option>
+                        <option value="09">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11" selected>November</option>
+                        <option value="12">Desember</option>
+                    </select>
+                    <select id="filterTahun" class="select-periode">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
                 </div>
             </div>
+            <div class="action-buttons">
+                <button id="btnCetak"><img src="https://img.icons8.com/material-outlined/24/000000/print.png"/> Cetak</button>
+                <button id="btnEkspor"><img src="https://img.icons8.com/material-outlined/24/000000/export-excel.png"/> Ekspor Excel</button>
+                <button id="btnPengaturan"><img src="https://img.icons8.com/material-outlined/24/000000/settings--v1.png"/> Pengaturan</button>
+            </div>
+        </div>
 
-            <!-- KARTU RINGKASAN SALDO -->
-            <div class="summary-grid">
-                <div class="stat-card">
-                    <span>Saldo Awal</span>
-                    <h2 id="valSaldoAwal">Rp 0</h2>
+        <!-- Info Program Section -->
+        <div class="info-program-card">
+            <p><strong>PROGRAM</strong> <span id="viewProgram">1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi</span></p>
+            <p><strong>KEGIATAN</strong> <span id="viewKegiatan">1.03.01.1.06 Administrasi Umum Perangkat Daerah</span></p>
+            <p><strong>SUB KEGIATAN</strong> <span id="viewSubKegiatan">1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD</span></p>
+        </div>
+
+        <!-- AI Assistant Section -->
+        <div class="ai-card" style="background: linear-gradient(135deg, #00796b, #004d40); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="margin-top:0; color: #ffeb3b;">🤖 Asisten AI Buku Kas Umum</h3>
+            <p style="font-size: 13px; margin-bottom: 10px;">Ketik perintah transaksi (AI otomatis memilah Pengeluaran atau Penerimaan):</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="inputAiPrompt" placeholder="Contoh: Beli materai 20rb ATAU Terima dana bos 5 juta..." style="flex: 1; padding: 8px; border-radius: 4px; border: none; outline: none;">
+                <button id="btnKirimAi" style="background: #ffeb3b; color: #333; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">Proses AI</button>
+            </div>
+            <p id="aiResponse" style="font-size: 12px; margin-top: 8px; font-style: italic; color: #e0f2f1;"></p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card">
+                <p>Saldo Awal <img src="https://img.icons8.com/material-outlined/16/737373/down-left.png"/></p>
+                <h2>Rp 500.000.000</h2>
+            </div>
+            <div class="card">
+                <p>Total Penerimaan <img src="https://img.icons8.com/material-outlined/16/737373/down-left.png"/></p>
+                <h2>Rp 0</h2>
+            </div>
+            <div class="card">
+                <p>Total Pengeluaran <img src="https://img.icons8.com/material-outlined/16/737373/up-right.png"/></p>
+                <h2 class="expense">Rp 400.000</h2>
+            </div>
+            <div class="card sisa-kas">
+                <p>Sisa Kas <img src="https://img.icons8.com/material-outlined/16/1b5e20/briefcase.png"/></p>
+                <h2>Rp 499.600.000</h2>
+            </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div class="transactions-section">
+            <h3>Daftar Transaksi</h3>
+            
+            <!-- Kontrol View List & Pencarian -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-size: 13px; color: #666;">Tampilkan:</label>
+                    <select id="selectLimit" class="select-periode" style="padding: 6px;">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span style="font-size: 13px; color: #666;">data</span>
                 </div>
-                <div class="stat-card">
-                    <span>Total Penerimaan</span>
-                    <h2 id="valTotalPenerimaan">Rp 0</h2>
+                <div style="display: flex; gap: 10px; flex: 1; justify-content: flex-end;">
+                    <input type="text" class="search-bar-input" placeholder="Cari uraian, nama, no. dokumen..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 250px;">
+                    <button id="btnHapusTerpilih" style="background-color: #c62828; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">🗑️ Hapus Terpilih</button>
                 </div>
-                <div class="stat-card">
-                    <span>Total Pengeluaran</span>
-                    <h2 id="valTotalPengeluaran" class="expense">Rp 0</h2>
-                </div>
-                <div class="stat-card highlight">
-                    <span>Sisa Kas BKU</span>
-                    <h2 id="valSisaKas">Rp 0</h2>
-                </div>
+                <button id="btnResetData" style="background-color: #d32f2f; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">⚠️ Reset Semua Data</button>
             </div>
 
-            <!-- BAGIAN TABEL TRANSAKSI -->
-            <section class="table-section">
-                <div class="table-header-controls">
-                    <div class="table-limit">
-                        <label>Tampilkan:</label>
-                        <select id="selectLimit" class="form-control-sm">
-                            <option value="5">5</option>
-                            <option value="10" selected>10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <span>data per halaman</span>
-                    </div>
-                    <div class="table-search-group">
-                        <input type="text" class="search-bar-input" placeholder="Cari uraian atau nomor bukti...">
-                        <button id="btnHapusTerpilih" class="btn-danger-sm">🗑️ Hapus Terpilih</button>
-                    </div>
-                </div>
+            <div class="tabs">
+                <button class="active">Semua</button>
+                <button>Penerimaan</button>
+                <button>Pengeluaran</button>
+            </div>
+            <button class="add-transaction" id="btnBukaModalTransaksi">+ Transaksi</button>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
+                        <th>NO</th>
+                        <th>TANGGAL</th>
+                        <th>URAIAN</th>
+                        <th>PENERIMAAN</th>
+                        <th>PENGELUARAN</th>
+                        <th>SALDO</th>
+                        <th>AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data dirender otomatis oleh JavaScript -->
+                </tbody>
+            </table>
 
-                <div class="tabs-container">
-                    <button class="tab-btn active">Semua</button>
-                    <button class="tab-btn">Penerimaan</button>
-                    <button class="tab-btn">Pengeluaran</button>
-                    <button id="btnBukaModalTransaksi" class="btn-primary-sm">+ Tambah Transaksi</button>
-                </div>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th width="30"><input type="checkbox" id="selectAll"></th>
-                                <th width="50">NO</th>
-                                <th width="120">TANGGAL</th>
-                                <th>URAIAN KETERANGAN</th>
-                                <th width="140">PENERIMAAN</th>
-                                <th width="140">PENGELUARAN</th>
-                                <th width="140">SALDO</th>
-                                <th width="80">AKSI</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data dimuat dinamis via JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- PAGINASI -->
-                <div class="pagination-footer">
-                    <span id="infoPagination">Menampilkan 0 data</span>
-                    <div class="pagination-buttons">
-                        <button id="btnPrevPage" class="btn-sm">‹ Sebelumnya</button>
-                        <span id="pageIndicator">1 / 1</span>
-                        <button id="btnNextPage" class="btn-sm">Berikutnya ›</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- REKONSILIASI & TANDA TANGAN -->
-            <div class="bottom-grid">
-                <!-- REKON -->
-                <div class="card-box">
-                    <h3>Rekonsiliasi Kas</h3>
-                    <div class="rekon-details">
-                        <p><span>Kas Tunai:</span> <strong id="valKasTunai">Rp 0</strong> <button id="btnTambahKas" class="btn-xs">Edit</button></p>
-                        <p><span>Saldo Bank:</span> <strong id="valSaldoBank">Rp 0</strong> <button id="btnSaldoBank" class="btn-xs">Edit</button></p>
-                        <p><span>Pajak Belum Disetor:</span> <strong id="valPajak">Rp 0</strong> <button id="btnPajak" class="btn-xs">Edit</button></p>
-                        <hr style="border:0; border-top:1px solid #eee; margin:8px 0;">
-                        <p><strong>Total Kas Fisik:</strong> <span id="valTotalFisik">Rp 0</span></p>
-                    </div>
-                    <div id="warningBox" class="warning-box" style="display:none;">
-                        ⚠️ <span id="textWarning">Ada selisih antara BKU dan kas fisik.</span>
-                    </div>
-                </div>
-
-                <!-- TANDA TANGAN & QR CODE -->
-                <div class="card-box text-center">
-                    <p>Mengetahui, Kuasa Pengguna Anggaran</p>
-                    <div class="signature-area">
-                        <div id="qrcodeContainer" title="Scan untuk membuka web akurat"></div>
-                        <div class="signature-img-box">
-                            <img id="imgTandaTangan" src="" alt="Tanda Tangan" style="display: none;">
-                        </div>
-                    </div>
-                    <p class="sign-name" id="viewNamaKPA">HARRY KUSWIAN, S.T., M.T.</p>
-                    <p class="sign-nip">NIP. <span id="viewNIPKPA">198004 201201 1 011</span></p>
-                    <button id="btnBukaDrawing" class="btn-outline-sm">✍️ Buat Tanda Tangan Digital</button>
+            <!-- Navigasi Pagination (Next Page) -->
+            <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; color: #666;">
+                <span id="infoPagination">Menampilkan 0 dari 0 data</span>
+                <div style="display: flex; gap: 5px;">
+                    <button id="btnPrevPage" class="btn-mini" style="padding: 6px 12px;">‹ Sebelumnya</button>
+                    <span id="pageIndicator" style="padding: 6px 10px; font-weight: bold;">1 / 1</span>
+                    <button id="btnNextPage" class="btn-mini" style="padding: 6px 12px;">Berikutnya ›</button>
                 </div>
             </div>
-        </main>
+        </div>
+
+        <!-- Reconciliation Section -->
+        <div class="reconciliation-card">
+            <h3>Rekonsiliasi Kas</h3>
+            <p>Sisa kas BKU dibandingkan dengan posisi kas fisik.</p>
+            <p>Sisa Kas BKU <span id="rekonBku">Rp 400.000.000</span></p>
+            <div class="details">
+                <p>
+                    <span>Kas Tunai: <strong id="valKasTunai">Rp 0</strong></span>
+                    <button id="btnTambahKas" class="btn-mini">+ Tambah Kas</button>
+                </p>
+                <p>
+                    <span>Saldo Bank: <strong id="valSaldoBank">Rp 0</strong></span>
+                    <button id="btnSaldoBank" class="btn-mini">+ Saldo Bank</button>
+                </p>
+                <p>Surat Berharga <span>Rp 0</span></p>
+                <p><strong>Total Kas Fisik</strong> <span id="valTotalFisik">Rp 0</span></p>
+            </div>
+            <p>
+                <span>Pajak Belum Disetor: <strong id="valPajak">Rp 0</strong></span>
+                <button id="btnPajak" class="btn-mini">+ Pajak</button>
+            </p>
+            <div class="warning-box">
+                <img src="https://img.icons8.com/material-outlined/24/c62828/error.png"/>
+                <span id="textWarning">Selisih Rp 400.000.000 antara BKU dan kas fisik.</span>
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <p>Mengetahui,</p>
+            <p>Kuasa Pengguna Anggaran</p>
+            <div style="height: 70px; display: flex; align-items: center; justify-content: center; margin: 5px 0;">
+                <img id="imgTandaTangan" src="" alt="Tanda Tangan" style="max-height: 60px; display: none;">
+            </div>
+            <p class="name" id="viewNamaKPA">HARRY KUSWIAN, S.T., M.T.</p>
+            <p>NIP. <span id="viewNIPKPA">198004 201201 1 011</span></p>
+            <p>Sukabumi, <span id="tanggalCetakFooter">-</span></p>
+            <button id="btnBukaDrawing" class="btn-mini" style="margin-top: 10px;">✍️ Gunakan Layar Drawing</button>
+        </div>
     </div>
 
-    <!-- MODAL TAMBAH / EDIT TRANSAKSI (DENGAN PILIH TANGGAL) -->
+    <!-- MODAL TAMBAH / EDIT TRANSAKSI -->
     <div id="modalTransaksi" class="modal">
-        <div class="modal-card">
+        <div class="modal-content">
             <h2 id="modalTitle">Tambah Transaksi Baru</h2>
-            <hr class="modal-divider">
+            <hr style="margin-bottom: 15px; border: 0; border-top: 1px solid #ccc;">
+            
             <input type="hidden" id="editIndexId">
 
-            <label>No. Bukti:</label>
-            <input type="text" id="inputNoBukti" class="form-control" readonly style="background:#e9ecef;">
+            <label>No. Bukti / Nomor:</label>
+            <input type="text" id="inputNoBukti" class="modal-input" readonly style="background-color: #e9ecef;">
 
-            <label>Pilih Tanggal Transaksi:</label>
-            <input type="date" id="inputTanggal" class="form-control">
+            <label>Tanggal Transaksi:</label>
+            <input type="date" id="inputTanggal" class="modal-input">
 
-            <label>Jenis Transaksi:</label>
-            <select id="inputJenis" class="form-control">
+            <label>Jenis Transaksi (Uraian Kategori):</label>
+            <select id="inputJenis" class="modal-input">
                 <option value="penerimaan">Penerimaan</option>
                 <option value="pengeluaran" selected>Pengeluaran</option>
             </select>
 
             <label>Uraian / Keterangan:</label>
-            <input type="text" id="inputUraian" class="form-control" placeholder="Contoh: Belanja alat tulis kantor...">
+            <input type="text" id="inputUraian" class="modal-input" placeholder="Contoh: Belanja ATK Kantor / Pembayaran Honor...">
 
             <label>Nominal (Rp):</label>
-            <input type="number" id="inputJumlah" class="form-control" placeholder="Masukkan angka tanpa titik...">
+            <input type="number" id="inputJumlah" class="modal-input" placeholder="Masukkan angka nominal tanpa titik...">
 
-            <label>Lampiran File (PDF/JPG, Maks 2MB):</label>
-            <input type="file" id="inputFile" class="form-control" accept=".pdf, .jpg, .jpeg">
+            <label>Data Pendukung (PDF / JPG, Maks 2MB):</label>
+            <input type="file" id="inputFile" class="modal-input" accept=".pdf, .jpg, .jpeg">
 
             <div class="modal-buttons">
-                <button id="btnSimpanTransaksi" class="btn-primary">Simpan Transaksi</button>
-                <button id="btnTutupModalTransaksi" class="btn-secondary">Batal</button>
+                <button id="btnSimpanTransaksi" class="btn-save">Simpan Transaksi</button>
+                <button id="btnTutupModalTransaksi" class="btn-close">Batal</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL PENGATURAN -->
     <div id="modalPengaturan" class="modal">
-        <div class="modal-card">
+        <div class="modal-content">
             <h2>Pengaturan Dokumen</h2>
-            <hr class="modal-divider">
+            <hr style="margin-bottom: 15px; border: 0; border-top: 1px solid #ccc;">
+            
             <label>Program:</label>
-            <input type="text" id="inputProgram" class="form-control">
+            <input type="text" id="inputProgram" class="modal-input">
             <label>Kegiatan:</label>
-            <input type="text" id="inputKegiatan" class="form-control">
+            <input type="text" id="inputKegiatan" class="modal-input">
             <label>Sub Kegiatan:</label>
-            <input type="text" id="inputSubKegiatan" class="form-control">
-            <label>Saldo Awal (Rp):</label>
-            <input type="number" id="inputSaldoAwal" class="form-control">
-            <label>Nama KPA:</label>
-            <input type="text" id="inputNamaKPA" class="form-control">
-            <label>NIP KPA:</label>
-            <input type="text" id="inputNIPKPA" class="form-control">
+            <input type="text" id="inputSubKegiatan" class="modal-input">
+            <label>Saldo Awal (Angka Saja):</label>
+            <input type="number" id="inputSaldoAwal" class="modal-input">
+            <label>Nama Kuasa Pengguna Anggaran:</label>
+            <input type="text" id="inputNamaKPA" class="modal-input">
+            <label>NIP:</label>
+            <input type="text" id="inputNIPKPA" class="modal-input">
+
             <div class="modal-buttons">
-                <button id="btnSimpanPengaturan" class="btn-primary">Simpan</button>
-                <button id="btnTutupModal" class="btn-secondary">Batal</button>
+                <button id="btnSimpanPengaturan" class="btn-save">Simpan Perubahan</button>
+                <button id="btnTutupModal" class="btn-close">Batal</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DRAWING TANDA TANGAN -->
+
+    
+            <!-- MODAL DRAWING TANDA TANGAN -->
     <div id="modalDrawing" class="modal">
-        <div class="modal-card text-center">
-            <h2>Layar Tanda Tangan Digital</h2>
-            <p style="font-size:12px; color:#666; margin-bottom:10px;">Buat tanda tangan di kotak berikut:</p>
-            <canvas id="canvasTandaTangan" width="400" height="200" style="border:1px solid #ccc; background:#fff; touch-action:none; width:100%; max-width:400px; border-radius:4px; cursor:crosshair;"></canvas>
-            <div style="margin-top:10px;">
-                <button id="btnClearCanvas" class="btn-danger-sm">Hapus / Ulangi</button>
+        <div class="modal-content" style="text-align: center;">
+            <h2>Layar Drawing Tanda Tangan</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Silakan buat tanda tangan di kotak bawah:</p>
+                        <div style="margin-top: 10px;">
+                <button id="btnClearCanvas" class="btn-close" style="background-color: #c62828; color: white; padding: 6px 12px; font-size: 12px;">Hapus / Ulangi</button>
             </div>
-            <div class="modal-buttons" style="margin-top:15px;">
-                <button id="btnSimpanDrawing" class="btn-primary">Gunakan Tanda Tangan</button>
-                <button id="btnTutupDrawing" class="btn-secondary">Batal</button>
+            <canvas id="canvasTandaTangan" width="400" height="200" style="border: 1px solid #ccc; background-color: #fff; cursor: crosshair; touch-action: none; width: 100%; max-width: 400px; border-radius: 4px;"></canvas>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button id="btnSimpanDrawing" class="btn-save">Gunakan Tanda Tangan</button>
+                <button id="btnTutupDrawing" class="btn-close">Batal</button>
             </div>
         </div>
     </div>
