@@ -60,89 +60,6 @@ const elViewNIPKPA = document.getElementById('viewNIPKPA');
 const elTanggalCetakFooter = document.getElementById('tanggalCetakFooter');
 const imgTandaTangan = document.getElementById('imgTandaTangan');
 
-// ==========================================
-// SELEKTOR ELEMEN DOM (DISESUAIKAN DENGAN LAYOUT BARU)
-// ==========================================
-const elSaldoAwal = document.getElementById('valSaldoAwal');
-const elTotalPenerimaan = document.getElementById('valTotalPenerimaan');
-const elTotalPengeluaran = document.getElementById('valTotalPengeluaran');
-const elSisaKas = document.getElementById('valSisaKas');
-
-const elViewProgram = document.getElementById('viewProgram');
-const elViewKegiatan = document.getElementById('viewKegiatan');
-const elViewSubKegiatan = document.getElementById('viewSubKegiatan');
-const elViewNamaKPA = document.getElementById('viewNamaKPA');
-const elViewNIPKPA = document.getElementById('viewNIPKPA');
-const elTanggalCetakFooter = document.getElementById('tanggalCetakFooter');
-const imgTandaTangan = document.getElementById('imgTandaTangan');
-
-const elRekonBku = document.getElementById('rekonBku');
-const elValKasTunai = document.getElementById('valKasTunai');
-const elValSaldoBank = document.getElementById('valSaldoBank');
-const elValTotalFisik = document.getElementById('valTotalFisik');
-const elValPajak = document.getElementById('valPajak');
-const elTextWarning = document.getElementById('textWarning');
-const elWarningBox = document.getElementById('warningBox');
-
-const inputPencarian = document.querySelector('.search-bar-input');
-const selectLimit = document.getElementById('selectLimit');
-const filterBulan = document.getElementById('filterBulan');
-const filterTahun = document.getElementById('filterTahun');
-
-const tombolTabs = document.querySelectorAll('.tab-btn');
-const tabelBody = document.querySelector('table tbody');
-const selectAllCheckbox = document.getElementById('selectAll');
-const btnHapusTerpilih = document.getElementById('btnHapusTerpilih');
-const btnPrevPage = document.getElementById('btnPrevPage');
-const btnNextPage = document.getElementById('btnNextPage');
-const pageIndicator = document.getElementById('pageIndicator');
-const infoPagination = document.getElementById('infoPagination');
-
-// Tombol Utama & Modal
-const btnCetak = document.getElementById('btnCetak');
-const menuCetakSidebar = document.getElementById('menuCetakSidebar');
-const btnEkspor = document.getElementById('btnEkspor');
-const btnPengaturan = document.getElementById('btnPengaturan');
-const menuPengaturanSidebar = document.getElementById('menuPengaturanSidebar');
-const btnTambahKas = document.getElementById('btnTambahKas');
-const btnSaldoBank = document.getElementById('btnSaldoBank');
-const btnPajak = document.getElementById('btnPajak');
-const btnBukaDrawing = document.getElementById('btnBukaDrawing');
-
-const modalTransaksi = document.getElementById('modalTransaksi');
-const modalTitle = document.getElementById('modalTitle');
-const btnBukaModalTransaksi = document.getElementById('btnBukaModalTransaksi');
-const btnTutupModalTransaksi = document.getElementById('btnTutupModalTransaksi');
-const btnSimpanTransaksi = document.getElementById('btnSimpanTransaksi');
-const editIndexId = document.getElementById('editIndexId');
-const inputNoBukti = document.getElementById('inputNoBukti');
-const inputTanggal = document.getElementById('inputTanggal');
-const inputJenis = document.getElementById('inputJenis');
-const inputUraian = document.getElementById('inputUraian');
-const inputJumlah = document.getElementById('inputJumlah');
-const inputFile = document.getElementById('inputFile');
-
-const modalPengaturan = document.getElementById('modalPengaturan');
-const btnTutupModal = document.getElementById('btnTutupModal');
-const btnSimpanPengaturan = document.getElementById('btnSimpanPengaturan');
-const modalDrawing = document.getElementById('modalDrawing');
-const btnTutupDrawing = document.getElementById('btnTutupDrawing');
-const btnSimpanDrawing = document.getElementById('btnSimpanDrawing');
-const btnClearCanvas = document.getElementById('btnClearCanvas');
-const canvas = document.getElementById('canvasTandaTangan');
-const ctx = canvas.getContext('2d');
-
-const inputProgram = document.getElementById('inputProgram');
-const inputKegiatan = document.getElementById('inputKegiatan');
-const inputSubKegiatan = document.getElementById('inputSubKegiatan');
-const inputSaldoAwal = document.getElementById('inputSaldoAwal');
-const inputNamaKPA = document.getElementById('inputNamaKPA');
-const inputNIPKPA = document.getElementById('inputNIPKPA');
-
-const inputAiPrompt = document.getElementById('inputAiPrompt');
-const btnKirimAi = document.getElementById('btnKirimAi');
-const aiResponse = document.getElementById('aiResponse');
-
 const elRekonBku = document.getElementById('rekonBku');
 const elValKasTunai = document.getElementById('valKasTunai');
 const elValSaldoBank = document.getElementById('valSaldoBank');
@@ -836,15 +753,6 @@ btnEkspor.addEventListener('click', () => {
     a.download = `BKU_${filterBulan.value}_${filterTahun.value}.xls`;
     a.click();
 });
-
-
-// Shortcut Sidebar Menu
-if (menuPengaturanSidebar) {
-    menuPengaturanSidebar.addEventListener('click', (e) => { e.preventDefault(); btnPengaturan.click(); });
-}
-if (menuCetakSidebar) {
-    menuCetakSidebar.addEventListener('click', (e) => { e.preventDefault(); window.print(); });
-}
 
 document.addEventListener("DOMContentLoaded", () => perbaruiAplikasi());
 
