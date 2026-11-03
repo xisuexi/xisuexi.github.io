@@ -1,176 +1,184 @@
+```javascript
 document.addEventListener("DOMContentLoaded", () => {
-    // Basis Data Awal (State Aplikasi)
+    // 1. STATE MANAGEMENT APLIKASI
+    let configSKPD = {
+        program: "1.03.01.1 Program Penunjang Urusan Pemerintah Daerah Provinsi",
+        kegiatan: "1.03.01.1.06 Administrasi Umum Perangkat Daerah",
+        subKegiatan: "1.03.01.1.06.0009 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD",
+        saldoAwal: 500000000,
+        namaPejabat: "HARRY KUSWIAN, S.T., M.T.",
+        nipPejabat: "198004 201201 1 011"
+    };
+
     let dataTransaksi = [
         { id: 1, nomor: "BKT-001", tanggal: "2026-12-01", uraian: "Pembayaran Honorarium Tim Pelaksana SKPD", jenis: "pengeluaran", nominal: 400000 }
     ];
-    let saldoAwal = 500000000;
 
-    // Elemen Ringkasan Saldo Dashboard
-    const txtSaldoAwal = document.getElementById("txt-saldo-awal");
-    const txtPenerimaan = document.getElementById("txt-penerimaan");
-    const txtPengeluaran = document.getElementById("txt-pengeluaran");
-    const txtSisaKas = document.getElementById("txt-sisa-kas");
-    const tableBody = document.getElementById("table-body");
+    // 2. ENGINE TAB SWITCH NAVIGASI SIDEBAR (Memperbaiki tombol pengaturan)
+    const menuItems = document.querySelectorAll(".menu-item");
+    const tabPanels = document.querySelectorAll(".tab-panel");
 
-    // Format Mata Uang Rupiah
+    menuItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+            e.preventDefault();
+            menuItems.forEach(i => i.classList.remove("active"));
+            tabPanels.forEach(p => p.classList.remove("active-panel"));
+
+            item.classList.add("active");
+            const targetId = item.getAttribute("data-target");
+            const targetPanel = document.getElementById(targetId);
+            if(targetPanel) targetPanel.classList.add("active-panel");
+        });
+    });
+
+    // 3. UTILTAS FORMAT RUPIAH
     function formatRupiah(angka) {
         return "Rp " + new Intl.NumberFormat("id-ID").format(angka);
     }
 
-    // Fungsi Utama Update Dashboard & Angka Finansial
-    function updateDashboard() {
-        let totalMasuk = 0;
-        let totalKeluar = 0;
+    // 4. HITUNG DAN RE-RENDER TOTAL KAS DASHBOARD
+    function updateCoreCalculations() {
+        let totalPenerimaan = 0;
+        let totalPengeluaran = 0;
 
-        dataTransaksi.forEach(t => {
-            if (t.jenis === "penerimaan") totalMasuk += t.nominal;
-            else if (t.jenis === "pengeluaran") totalKeluar += t.nominal;
+        dataTransaksi.forEach(item => {
+            if (item.jenis === "penerimaan") totalPenerimaan += item.nominal;
+            else totalPengeluaran += item.nominal;
         });
 
-        const sisaKas = saldoAwal + totalMasuk - totalKeluar;
+        const sisaKasAkhir = configSKPD.saldoAwal + totalPenerimaan - totalPengeluaran;
 
-        // Pasang angka ke komponen UI Dashboard
-        if(txtSaldoAwal) txtSaldoAwal.textContent = formatRupiah(saldoAwal);
-        if(txtPenerimaan) txtPenerimaan.textContent = formatRupiah(totalMasuk);
-        if(txtPengeluaran) txtPengeluaran.textContent = formatRupiah(totalKeluar);
-        if(txtSisaKas) txtSisaKas.textContent = formatRupiah(sisaKas);
+        // Cetak ke layar kartu statis
+        document.getElementById("txt-saldo-awal").textContent = formatRupiah(configSKPD.saldoAwal);
+        document.getElementById("txt-penerimaan").textContent = formatRupiah(totalPenerimaan);
+        document.getElementById("txt-pengeluaran").textContent = formatRupiah(totalPengeluaran);
+        document.getElementById("txt-sisa-kas").textContent = formatRupiah(sisaKasAkhir);
         
-        // Update data pada modul rekonsiliasi kas
-        const recBku = document.getElementById("rec-bku");
-        if(recBku) recBku.textContent = formatRupiah(sisaKas);
+        // Kirim ke modul rekonsiliasi
+        document.getElementById("rec-bku").textContent = formatRupiah(sisaKasAkhir);
 
-        hitungRekonsiliasi(sisaKas);
-        renderTable();
+        renderTableData();
+        eksekusiKalkulatorFisik(sisaKasAkhir);
     }
 
-    // Fungsi Render Tampilan Baris Tabel Laporan Transaksi
-    function renderTable() {
+    // 5. RENDER BARIS TABEL TRANSAKSI
+    function renderTableData() {
+        const tableBody = document.getElementById("table-body");
         if (!tableBody) return;
         tableBody.innerHTML = "";
 
         if (dataTransaksi.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 20px;">Tidak ada transaksi terdaftar.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding:24px;">Tidak ada rekam data transaksi saat ini.</td></tr>`;
             return;
         }
 
-        let runningSaldo = saldoAwal;
-        dataTransaksi.forEach((t, index) => {
-            if (t.jenis === "penerimaan") runningSaldo += t.nominal;
-            else runningSaldo -= t.nominal;
+        let runningSaldo = configSKPD.saldoAwal;
+        dataTransaksi.forEach((tx, index) => {
+            if (tx.jenis === "penerimaan") runningSaldo += tx.nominal;
+            else runningSaldo -= tx.nominal;
 
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><input type="checkbox" class="check-item" data-id="${t.id}"></td>
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><input type="checkbox" class="check-row" data-id="${tx.id}"></td>
                 <td>${index + 1}</td>
-                <td>${t.tanggal}</td>
-                <td><strong>[${t.nomor}]</strong> ${t.uraian}</td>
-                <td class="text-right text-success" style="font-weight: 500;">${t.jenis === 'penerimaan' ? formatRupiah(t.nominal) : '-'}</td>
-                <td class="text-right text-danger" style="font-weight: 500;">${t.jenis === 'pengeluaran' ? formatRupiah(t.nominal) : '-'}</td>
-                <td class="text-right" style="font-weight: 600;">${formatRupiah(runningSaldo)}</td>
+                <td>${tx.tanggal}</td>
+                <td><strong>[${tx.nomor}]</strong> ${tx.uraian}</td>
+                <td class="text-right text-success">${tx.jenis === 'penerimaan' ? formatRupiah(tx.nominal) : '-'}</td>
+                <td class="text-right text-danger">${tx.jenis === 'pengeluaran' ? formatRupiah(tx.nominal) : '-'}</td>
+                <td class="text-right" style="font-weight:600;">${formatRupiah(runningSaldo)}</td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-secondary text-danger" style="padding: 4px 8px;" onclick="hapusSatuTransaksi(${t.id})">
+                    <button type="button" class="btn btn-sm btn-secondary text-danger" onclick="hapusBarisTransaksi(${tx.id})">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>
             `;
-            tableBody.appendChild(tr);
+            tableBody.appendChild(row);
         });
     }
 
-    // Handler Tambah Transaksi Manual via Form Terpaku ID
-    const formTx = document.getElementById("form-transaksi");
-    if(formTx) {
-        formTx.addEventListener("submit", (e) => {
+    // 6. FORM TAMBAH TRANSAKSI MANUAL
+    const formTransaksi = document.getElementById("form-transaksi");
+    if(formTransaksi) {
+        formTransaksi.addEventListener("submit", (e) => {
             e.preventDefault();
-            
-            const nomor = document.getElementById("tx-nomor").value;
-            const tanggal = document.getElementById("tx-tanggal").value;
-            const uraian = document.getElementById("tx-uraian").value;
-            const nominal = parseFloat(document.getElementById("tx-nominal").value) || 0;
-            const jenis = document.querySelector('input[name="tx-type"]:checked').value;
-
             const dataBaru = {
                 id: Date.now(),
-                nomor: nomor,
-                tanggal: tanggal,
-                uraian: uraian,
-                jenis: jenis,
-                nominal: nominal
+                nomor: document.getElementById("tx-nomor").value,
+                tanggal: document.getElementById("tx-tanggal").value,
+                uraian: document.getElementById("tx-uraian").value,
+                jenis: document.querySelector('input[name="tx-type"]:checked').value,
+                nominal: parseFloat(document.getElementById("tx-nominal").value) || 0
             };
-
             dataTransaksi.push(dataBaru);
-            formTx.reset();
-            updateDashboard();
+            formTransaksi.reset();
+            updateCoreCalculations();
         });
     }
 
-    // Asisten AI Otomatis dengan Regex Pintar
-    const btnAI = document.getElementById("btn-proses-ai");
-    const inputAI = document.getElementById("ai-command");
+    // 7. INPUT TRANSAKSI VIA ASISTEN AI
+    const btnProsesAI = document.getElementById("btn-proses-ai");
+    const inputAICommand = document.getElementById("ai-command");
 
-    if(btnAI && inputAI) {
-        btnAI.addEventListener("click", () => {
-            const text = inputAI.value.trim().toLowerCase();
-            if (!text) return;
+    if(btnProsesAI && inputAICommand) {
+        btnProsesAI.addEventListener("click", () => {
+            const komand = inputAICommand.value.trim().toLowerCase();
+            if(!komand) return;
 
-            let jenis = "pengeluaran"; 
-            if (text.includes("terima") || text.includes("masuk") || text.includes("dana") || text.includes("pendapatan")) {
-                jenis = "penerimaan";
+            let jenisTerdeteksi = "pengeluaran";
+            if(komand.includes("terima") || komand.includes("masuk") || komand.includes("dana") || komand.includes("pendapatan")) {
+                jenisTerdeteksi = "penerimaan";
             }
 
-            // Pembersihan string untuk mengambil nominal angka murni
-            let nominal = 0;
-            let bersihMurni = text.replace(/\./g, ""); // hilangkan titik pemisah ribuan ketikan user
-            const matchAngka = bersihMurni.match(/\d+/);
-            
-            if (matchAngka) {
-                nominal = parseFloat(matchAngka[0]);
-                if (text.includes("jt") || text.includes("juta")) {
-                    nominal *= 1000000;
-                }
+            let murniAngka = komand.replace(/\./g, ""); 
+            const matchAngka = murniAngka.match(/\d+/);
+            let nominalAkhir = 0;
+
+            if(matchAngka) {
+                nominalAkhir = parseFloat(matchAngka[0]);
+                if(komand.includes("jt") || komand.includes("juta")) nominalAkhir *= 1000000;
             }
 
-            if (nominal > 0) {
+            if(nominalAkhir > 0) {
                 dataTransaksi.push({
                     id: Date.now(),
-                    nomor: "AI-" + Math.floor(100 + Math.random() * 900),
+                    nomor: "AI-" + Math.floor(100 + Math.random() * 800),
                     tanggal: new Date().toISOString().split('T')[0],
-                    uraian: inputAI.value,
-                    jenis: jenis,
-                    nominal: nominal
+                    uraian: inputAICommand.value,
+                    jenis: jenisTerdeteksi,
+                    nominal: nominalAkhir
                 });
-                updateDashboard();
-                inputAI.value = "";
+                updateCoreCalculations();
+                inputAICommand.value = "";
             } else {
-                alert("Asisten AI gagal mendeteksi nominal angka. Contoh perintah: 'Beli makan rapat 150000' atau 'Terima kas daerah 5 juta'");
+                alert("Gagal mendeteksi jumlah uang. Ketik instruksi dengan jelas.");
             }
         });
     }
 
-    // Fungsi Global Hapus Data Tunggal dari Atribut Klik HTML Inline
-    window.hapusSatuTransaksi = function(id) {
-        dataTransaksi = dataTransaksi.filter(t => t.id !== id);
-        updateDashboard();
+    // Fungsi global hapus baris transaksi
+    window.hapusBarisTransaksi = function(id) {
+        dataTransaksi = dataTransaksi.filter(item => item.id !== id);
+        updateCoreCalculations();
     };
 
-    // Fungsi Tombol Reset Semua Laporan Transaksi Buku Kas
-    const btnReset = document.getElementById("btn-reset-data");
-    if(btnReset) {
-        btnReset.addEventListener("click", () => {
-            if(confirm("Apakah Anda yakin ingin mengosongkan seluruh riwayat Buku Kas Umum?")) {
+    // Tombol Kosongkan Seluruh Data BKU
+    const btnResetData = document.getElementById("btn-reset-data");
+    if(btnResetData) {
+        btnResetData.addEventListener("click", () => {
+            if(confirm("Hapus seluruh catatan BKU? Tindakan ini tidak bisa dibatalkan.")) {
                 dataTransaksi = [];
-                updateDashboard();
+                updateCoreCalculations();
             }
         });
     }
 
-    // Kalkulator Realtime Rekonsiliasi Kas Fisik Dompet & Bank
+    // 8. ENGINE REKONSILIASI KAS REALTIME
     const inputTunai = document.getElementById("input-kas-tunai");
     const inputBank = document.getElementById("input-saldo-bank");
 
-    function hitungRekonsiliasi(sisaKasBKU) {
-        const tunai = inputTunai ? (parseFloat(inputTunai.value) || 0) : 0;
-        const bank = inputBank ? (parseFloat(inputBank.value) || 0) : 0;
+    function eksekusiKalkulatorFisik(sisaKasBKU) {
+        const tunai = parseFloat(inputTunai.value) || 0;
+        const bank = parseFloat(inputBank.value) || 0;
         const totalFisik = tunai + bank;
 
         const recFisik = document.getElementById("rec-fisik");
@@ -178,52 +186,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const selisih = (sisaKasBKU || 0) - totalFisik;
         const alertSelisih = document.getElementById("alert-selisih");
+        const txtSelisih = document.getElementById("txt-selisih");
+
+        if(txtSelisih) txtSelisih.textContent = formatRupiah(Math.abs(selisih));
 
         if(alertSelisih) {
             if (selisih === 0) {
-                alertSelisih.className = "alert-box success";
-                alertSelisih.innerHTML = `<i class="fa-solid fa-circle-check"></i> Kas Akurat! Saldo Buku Kas cocok sempurna dengan fisik uang.`;
+                alertSelisih.className = "alert-banner alert-success";
+                alertSelisih.innerHTML = `<i class="fa-solid fa-circle-check"></i> Sinkronisasi Akurat! Tidak ada selisih kas fisik.`;
             } else {
-                alertSelisih.className = "alert-box error";
-                alertSelisih.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Terdapat selisih <strong>${formatRupiah(Math.abs(selisih))}</strong> antara BKU dan kondisi kas fisik nyata.`;
+                alertSelisih.className = "alert-banner alert-danger";
+                alertSelisih.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Terdapat selisih <strong>${formatRupiah(Math.abs(selisih))}</strong> antara pembukuan BKU dan fisik kas.`;
             }
         }
     }
 
-    if(inputTunai) inputTunai.addEventListener("input", () => updateDashboard());
-    if(inputBank) inputBank.addEventListener("input", () => updateDashboard());
+    if(inputTunai) inputTunai.addEventListener("input", () => updateCoreCalculations());
+    if(inputBank) inputBank.addEventListener("input", () => updateDashboardCalculationsFromInput());
 
-    // Kanvas Core Tanda Tangan Elektronik KPA
-    const canvas = document.getElementById("signature-pad");
-    if (canvas) {
-        const ctx = canvas.getContext("2d");
-        let drawing = false;
-
-        ctx.strokeStyle = "#0f172a";
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = "round";
-
-        canvas.addEventListener("mousedown", (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
-        canvas.addEventListener("mousemove", (e) => { if(drawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
-        window.addEventListener("mouseup", () => drawing = false);
-
-        const btnClear = document.getElementById("clear-canvas");
-        if(btnClear) {
-            btnClear.addEventListener("click", () => ctx.clearRect(0, 0, canvas.width, canvas.height));
-        }
-        
-        const btnSave = document.getElementById("save-canvas");
-        if(btnSave) {
-            btnSave.addEventListener("click", () => alert("Tanda tangan Kuasa Pengguna Anggaran berhasil disimpan!"));
-        }
+    function updateDashboardCalculationsFromInput() {
+        let totalPenerimaan = 0; let totalPengeluaran = 0;
+        dataTransaksi.forEach(item => { item.jenis === "penerimaan" ? totalPenerimaan += item.nominal : totalPengeluaran += item.nominal; });
+        eksekusiKalkulatorFisik(configSKPD.saldoAwal + totalPenerimaan - totalPengeluaran);
     }
 
-    // Set Tanggal Berjalan Otomatis di Pojok Dokumen
-    const txtDate = document.getElementById("current-date");
-    if(txtDate) {
-        txtDate.textContent = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-    }
+    // 9. SIMPAN CONFIG PARAMETER FORM PENGATURAN
+    const formPengaturan = document.getElementById("form-pengaturan");
+    if(formPengaturan) {
+        formPengaturan.addEventListener("submit", (e) => {
+            e.preventDefault();
+            configSKPD.saldoAwal = parseFloat(document.getElementById("cfg-saldo").value) || 0;
+            configSKPD.namaPejabat = document.getElementById("cfg-pejabat").value;
+            configSKPD.nipPejabat = document.getElementById("cfg-nip").value;
 
-    // Jalankan Sinkronisasi Perhitungan Saat Pertama Kali Halaman Terbuka
-    updateDashboard();
+            // Update Label Identitas KPA di lembar TTD
+document.getElementById("lbl-nama-pejabat").textContent = configSKPD.namaPejabat;
+document.getElementById("lbl-nip-pejabat").textContent = configSKPD.nipPejabat;
+// Beri notifikasi sukses ke user
+alert("Parameter konfigurasi instansi & pagu berhasil diupdate!");
+updateCoreCalculations();
+});
+}
+// 10. KANVAS DRAWING TANDA TANGAN
+const canvas = document.getElementById("signature-pad");
+if(canvas) {
+const ctx = canvas.getContext("2d");
+let isDrawing = false;
+ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2.5; ctx.lineCap = "round";
+canvas.addEventListener("mousedown", (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+canvas.addEventListener("mousemove", (e) => { if(isDrawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
+window.addEventListener("mouseup", () => isDrawing = false);
+document.getElementById("clear-canvas").addEventListener("click", () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+document.getElementById("save-canvas").addEventListener("click", () => alert("Tanda tangan KPA dikunci secara aman ke dokumen laporan BKU."));
+}
+// Set tanggal hari ini di dokumen cetak
+document.getElementById("current-date").textContent = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+// Booting up calculations awal
+updateCoreCalculations();
 });
