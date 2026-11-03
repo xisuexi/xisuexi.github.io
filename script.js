@@ -1,4 +1,3 @@
-```javascript
 document.addEventListener("DOMContentLoaded", () => {
     // 1. STATE MANAGEMENT APLIKASI
     let configSKPD = {
