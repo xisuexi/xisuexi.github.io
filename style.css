@@ -1,3 +1,4 @@
+
 ```css
 :root {
     --bg-workspace: #f8fafc;
@@ -176,7 +177,7 @@ body {
 /* CETAK PRINT PRESET */
 @media print {
     .app-sidebar, .app-topbar, .row-tools, .workspace-right, .table-controls, .canvas-buttons { display: none !important; }
-    .app-main { margin-left: 0; padding: 0; }
+.app-main { margin-left: 0; padding: 0; }
 .tab-panel { display: block !important; }
 .card { box-shadow: none !important; border: none !important; }
 }
